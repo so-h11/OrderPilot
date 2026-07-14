@@ -1,0 +1,35 @@
+Here is your master blueprint, Spitfire. Since building a full-stack system requires strict sequential logic (you cannot build the checkout API before the menu exists), this strategy follows your Taiga Sprint Plan exactly.
+
+You can literally copy and paste these prompts back to me one by one. By separating the frontend (UI) from the backend (API), we ensure the code remains clean, modular, and easy for you to test in UniServerZ.
+
+## The A-Z Prompting Strategy
+
+1. **Sprint 1: Authentication & Menu:** User Stories 1-13, 35-45.
+We establish the secure login and the core menu data first.
+
+* **Prompt 1 (Frontend Login):** *"Update the frontend `index.html` login page and `app.js` to send the username, password, and role to `api/login_handler.php` using the JavaScript `fetch()` API. Include SweetAlert2 error handling."*
+* **Prompt 2 (Admin Menu UI):** *"Create `admin_menu.php`. Use `includes/header.php` and `navbar.php`. Build a Bootstrap UI with a table to display menu items and a modal form to Add/Edit items (Food, Drinks, Desserts)."*
+* **Prompt 3 (Admin Menu API):** *"Create `api/menu_handler.php`. Write the PHP logic to handle GET (fetch all items), POST (add new item), and DELETE (remove item) requests, connecting to `orderpilot_db`."*
+* **Prompt 4 (Customer Menu & Cart UI):** *"Create `customer_menu.php`. Build a Bootstrap grid UI displaying the menu items fetched from the database, and include a floating Cart sidebar where users can add items and remarks."*
+
+
+2. **Sprint 2: The Order Flow:** User Stories 14-34.
+We connect the customer's cart to the Kitchen and Cashier endpoints.
+
+* **Prompt 5 (Checkout API):** *"Create `api/checkout_handler.php`. Write the PHP logic that takes the customer's cart data (JSON), inserts a new record into the `orders` table, and inserts the individual items into `order_details`."*
+* **Prompt 6 (Kitchen Dashboard UI & API):** *"Create `kitchen_dashboard.php` and its API endpoint `api/kitchen_handler.php`. The UI should display pending orders as cards. The API needs to fetch orders with the status 'Pending' or 'Preparing', and include a function to update the status to 'Ready'."*
+* **Prompt 7 (Cashier POS UI):** *"Update `cashier_dashboard.php` to dynamically fetch active orders using Javascript. Add a modal UI for the Cashier to view order details and click 'Process Payment'."*
+* **Prompt 8 (Payment API):** *"Create `api/payment_handler.php`. Write the PHP logic to update an order's `payment_status` to 'Paid' and generate a simple printable HTML receipt."*
+
+
+3. **Sprint 3: Admin Reports & Device Pairing:** User Stories 37-41, 46 + Custom Feature.
+We finalize the management tools and implement your unique multi-device linking idea.
+
+* **Prompt 9 (Admin Staff Management):** *"Create `admin_staff.php` and `api/staff_handler.php`. Provide the UI and PHP logic (CRUD) for the Administrator to add, edit, and delete Cashier and Kitchen Staff accounts, ensuring passwords are hashed."*
+* **Prompt 10 (Sales Reports):** *"Create `admin_reports.php` and `api/report_handler.php`. Write the PHP logic to sum up the `total_amount` of all 'Paid' orders grouped by date, and display it in a Bootstrap table."*
+* **Prompt 11 (4-Digit Pairing Feature):** *"Create `api/device_pairing.php`. Write the PHP logic to generate a random 4-digit code on the Cashier's Main Hub, store it in the `connected_devices` table, and verify it when a secondary device (iPad/Smartphone) submits that code."*
+
+
+---
+
+Whenever you are ready to start coding, just copy **Prompt 1** and paste it here, and we will get the frontend login fully connected to the database!
