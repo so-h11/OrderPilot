@@ -1,52 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OrderPilot - Staff Login</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body class="bg-light d-flex align-items-center vh-100">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="OrderPilot - Restaurant POS and Self-Ordering Management System" />
+    <meta name="author" content="" />
+    <title>OrderPilot - Restaurant POS and Self-Ordering Management System</title>
 
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-5">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <h2 class="fw-bold text-primary">OrderPilot</h2>
-                            <p class="text-muted">Staff Access Portal</p>
-                        </div>
-                        
-                        <form id="loginForm">
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                            </div>
-                            <div class="mb-4">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                            <div class="mb-4">
-                                <label for="role" class="form-label">Login As</label>
-                                <select class="form-select" id="role" name="role" required>
-                                    <!-- Customer is completely removed. Only staff accounts exist. -->
-                                    <option value="Cashier">Cashier</option>
-                                    <option value="Kitchen Staff">Kitchen Staff</option>
-                                    <option value="Administrator">Administrator</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 py-2" id="loginBtn">Log In</button>
-                        </form>
-                    </div>
-                </div>
+    <!-- Font Awesome icons -->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
+    <!-- Google fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700,800" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,400i,700" rel="stylesheet" />
+
+    <!-- Core theme CSS -->
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body id="page-top">
+
+    <!-- Hero / Header -->
+    <header class="hero">
+        <div class="bg-circle bg-circle-1"></div>
+        <div class="bg-circle bg-circle-2"></div>
+        <div class="bg-circle bg-circle-3"></div>
+
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="container navbar-inner">
+                <a class="navbar-brand" href="#page-top">
+                    <i class="fa-solid fa-utensils"></i>
+                    OrderPilot
+                </a>
+                <ul class="navbar-nav">
+                    <li><a class="nav-link" href="staffloginpage.html">Login</a></li>
+                    <li><a class="nav-link" href="registerpage.html">Register</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Hero content -->
+        <div class="hero-content container">
+            <h1 class="hero-heading">Welcome to OrderPilot</h1>
+            <p class="hero-subheading">Restaurant POS and Self-Ordering Management System</p>
+            <div class="hero-buttons">
+                <a class="btn btn-portal btn-portal-pink" href="customer_menu.php">
+                    <i class="fa-solid fa-desktop"></i>
+                    Customer Portal
+                </a>
+                <a class="btn btn-portal btn-portal-blue" href="staffloginpage.html">
+                    <i class="fa-solid fa-users"></i>
+                    Staff Portal
+                </a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="assets/js/app.js"></script>
+    <!-- Feature section -->
+    <section class="features">
+        <div class="container">
+            <div class="features-grid">
+
+                <!-- Feature 1: Customer ordering -->
+                <div class="feature-card">
+                    <div class="feature-image-wrap">
+                        <div class="tablet-mockup">
+                            <div class="tablet-screen">
+                                <div class="mockup-browser-bar"></div>
+                                <div class="mockup-menu-grid">
+                                    <div class="mockup-dish mockup-dish-1"></div>
+                                    <div class="mockup-dish mockup-dish-2"></div>
+                                    <div class="mockup-dish mockup-dish-3"></div>
+                                    <div class="mockup-dish mockup-dish-4"></div>
+                                </div>
+                                <div class="mockup-menu-lines">
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="feature-title">Place Orders Easily</h3>
+                    <p class="feature-text">Customers can browse the menu, add items to their cart, and place orders independently.</p>
+                </div>
+
+                <!-- Feature 2: Staff management -->
+                <div class="feature-card">
+                    <div class="feature-image-wrap">
+                        <div class="tablet-mockup">
+                            <div class="tablet-screen tablet-screen-dashboard">
+                                <div class="mockup-dashboard-header"></div>
+                                <div class="mockup-dashboard-body">
+                                    <div class="mockup-panel mockup-panel-list"></div>
+                                    <div class="mockup-panel mockup-panel-orange"></div>
+                                    <div class="mockup-panel mockup-panel-blue"></div>
+                                    <div class="mockup-panel mockup-panel-green"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="feature-title">Manage Restaurant Operations</h3>
+                    <p class="feature-text">Staff can view, process orders, manage the menu, kitchen, payments, and reports.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Core theme JS -->
+    <script src="js/scripts.js"></script>
 </body>
 </html>

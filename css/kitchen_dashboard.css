@@ -1,0 +1,262 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: linear-gradient(135deg, #fdeef1 0%, #fdf3ec 100%);
+    min-height: 100vh;
+    color: #1f2937;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    background: linear-gradient(90deg, #7a1730 0%, #a3223f 100%);
+    color: #fff;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.brand-icon {
+    font-size: 20px;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.welcome-text {
+    font-size: 15px;
+    opacity: 0.95;
+}
+
+.btn {
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-logout {
+    background: #ffffff;
+    color: #7a1730;
+    padding: 10px 20px;
+    font-size: 14px;
+    transition: opacity 0.15s ease;
+}
+
+.btn-logout:hover {
+    opacity: 0.85;
+}
+
+/* ---------- Main container ---------- */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+}
+
+.dashboard-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 28px;
+}
+
+.title-icon {
+    font-size: 24px;
+}
+
+/* ---------- Stat cards ---------- */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    border-radius: 14px;
+    padding: 24px 26px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.stat-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+}
+
+.stat-value {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.stat-new {
+    background: linear-gradient(135deg, #f5a524 0%, #f7c948 100%);
+}
+
+.stat-progress {
+    background: linear-gradient(135deg, #4f6df5 0%, #6c8cf5 100%);
+}
+
+.stat-completed {
+    background: linear-gradient(135deg, #38b6c2 0%, #5fd1a6 100%);
+}
+
+/* ---------- Orders table ---------- */
+.orders-table-wrapper {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-table thead th {
+    text-align: left;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2937;
+    padding: 20px 24px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.orders-table tbody td {
+    padding: 18px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+.orders-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.order-id {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.item-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1f2937;
+}
+
+.item-subtitle {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.actions-col {
+    text-align: right;
+}
+
+/* ---------- Status badges ---------- */
+.status-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.status-new {
+    background: #f5a524;
+}
+
+.status-in_progress {
+    background: #4f6df5;
+}
+
+.status-completed {
+    background: #2fb872;
+}
+
+/* ---------- Action buttons ---------- */
+.btn-start {
+    background: linear-gradient(135deg, #f5a524 0%, #f7c948 100%);
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.icon-btn-complete {
+    background: #2fb872;
+}
+
+.icon-btn-refresh {
+    background: #2fb872;
+}
+
+.icon-btn-delete {
+    background: #fff;
+    color: #e5484d;
+    border: 1px solid #f3c6c6;
+}
+
+.icon-btn-more {
+    background: transparent;
+    color: #9ca3af;
+    font-size: 18px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 800px) {
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+
+    .orders-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}

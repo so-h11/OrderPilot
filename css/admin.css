@@ -1,0 +1,380 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #f4f5f9;
+    color: #1f2937;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    background: linear-gradient(90deg, #5c4dd4 0%, #7a5ce0 100%);
+    color: #fff;
+    position: relative;
+    z-index: 10;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.welcome-text {
+    font-size: 14px;
+    opacity: 0.95;
+}
+
+.btn {
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-logout {
+    background: #ffffff;
+    color: #5c4dd4;
+    padding: 10px 20px;
+    font-size: 14px;
+    transition: opacity 0.15s ease;
+}
+
+.btn-logout:hover {
+    opacity: 0.85;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #6c5ce7, #8a6ff0);
+    color: #fff;
+    padding: 10px 18px;
+    font-size: 13px;
+    border-radius: 8px;
+}
+
+/* ---------- App layout ---------- */
+.app-body {
+    display: flex;
+    min-height: calc(100vh - 64px);
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background:
+        radial-gradient(circle at 30% 85%, rgba(255, 140, 90, 0.55), transparent 55%),
+        radial-gradient(circle at 70% 95%, rgba(232, 92, 130, 0.55), transparent 55%),
+        linear-gradient(180deg, #6b4fd8 0%, #8146c9 45%, #a6469f 75%, #c65a6e 100%);
+    padding: 28px 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    z-index: 2;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.sidebar-link.active {
+    background: rgba(255, 255, 255, 0.95);
+    color: #5c4dd4;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+/* ---------- Main content ---------- */
+.main-content {
+    flex: 1;
+    padding: 32px 32px 60px;
+    max-width: 1300px;
+}
+
+.page-title {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+
+/* ---------- Stat cards ---------- */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    border-radius: 12px;
+    padding: 22px 22px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.stat-sales {
+    background: linear-gradient(135deg, #2f9e5c 0%, #1f7a44 100%);
+}
+
+.stat-pending {
+    background: linear-gradient(135deg, #f0a83c 0%, #f3bd5e 100%);
+}
+
+.stat-completed {
+    background: linear-gradient(135deg, #4fa8e0 0%, #6cc1ef 100%);
+}
+
+.stat-staff {
+    background: linear-gradient(135deg, #e0577a 0%, #c9436a 100%);
+}
+
+/* ---------- Panels grid ---------- */
+.panels-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.panel {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    padding: 22px 24px;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.panel-header h2 {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.panel-subheading {
+    font-size: 14px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-left: 6px;
+}
+
+/* ---------- Tables inside panels ---------- */
+.panel-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.panel-table thead th {
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4b5563;
+    padding: 10px 8px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.panel-table tbody td {
+    padding: 14px 8px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.panel-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.cell-name {
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.cell-subtitle {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.actions-col {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* ---------- Status badges ---------- */
+.status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    margin-right: 6px;
+}
+
+.status-available {
+    background: #2fb872;
+}
+
+.status-unavailable {
+    background: #9ca3af;
+}
+
+/* ---------- Icon buttons ---------- */
+.icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn-edit {
+    color: #4f6df5;
+    border-color: #c9d3fb;
+}
+
+.icon-btn-delete {
+    color: #e5484d;
+    border-color: #f3c6c6;
+}
+
+/* ---------- Sales overview chart ---------- */
+.chart-wrapper {
+    display: flex;
+    gap: 12px;
+    height: 240px;
+    margin-top: 12px;
+}
+
+.chart-y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #9ca3af;
+    text-align: right;
+    padding-bottom: 24px;
+}
+
+.chart-bars {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    border-left: 1px solid #eef0f3;
+    border-bottom: 1px solid #eef0f3;
+    padding: 0 10px;
+}
+
+.chart-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+}
+
+.chart-bar {
+    width: 60%;
+    background: linear-gradient(180deg, #a7b3fb, #c7cffd);
+    border-radius: 4px 4px 0 0;
+}
+
+.chart-bar-label {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 8px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+    .panels-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .app-body {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+}

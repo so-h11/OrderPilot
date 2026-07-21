@@ -68,6 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Handle Logout
 function logout() {
+    const isAdminPage = window.location.pathname.includes('/admin/');
+    const logoutUrl = isAdminPage ? '../api/logout_handler.php' : 'api/logout_handler.php';
+    const homeUrl = isAdminPage ? '../index.html' : 'index.html';
+
     Swal.fire({
         title: 'Logging out...',
         text: 'Are you sure you want to end this session?',
@@ -78,12 +82,11 @@ function logout() {
         confirmButtonText: 'Yes, Log Out'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch('api/logout_handler.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        window.location.href = 'index.html';
-                    }
+            fetch(logoutUrl, { credentials: 'same-origin' })
+                .then(response => response.json().catch(() => ({})))
+                .catch(() => ({}))
+                .finally(() => {
+                    window.location.replace(homeUrl);
                 });
         }
     });

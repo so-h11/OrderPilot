@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Determine where to redirect based on STAFF role
             $redirect = 'index.html'; // Default fallback
             if($role == 'Cashier') $redirect = 'cashier_dashboard.php';
-            if($role == 'Administrator') $redirect = 'admin_dashboard.php';
+            if($role == 'Administrator') $redirect = 'admin/admin_dashboard.php';
             if($role == 'Kitchen Staff') $redirect = 'kitchen_dashboard.php';
             
             echo json_encode(["status" => "success", "redirect" => $redirect]);
