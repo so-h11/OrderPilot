@@ -12,16 +12,22 @@ switch ($method) {
         // FETCH ALL MENU ITEMS (Read)
         // ==========================================
         // Join with menu_categories to get the readable category name
-        $sql = "SELECT m.*, c.category_name 
+        $sql = "SELECT m.item_id, m.category_id, m.item_name, m.description, m.price, m.image_path, m.is_available, c.category_name 
                 FROM menu_items m 
                 LEFT JOIN menu_categories c ON m.category_id = c.category_id 
-                ORDER BY m.category_id, m.item_name";
+                ORDER BY m.category_id ASC, m.item_name ASC";
                 
         $result = $conn->query($sql);
         $items = [];
         
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
+                // strict type-casting ensures the Customer Menu JS filter works perfectly
+                $row['item_id'] = intval($row['item_id']);
+                $row['category_id'] = intval($row['category_id']);
+                $row['price'] = floatval($row['price']);
+                $row['is_available'] = intval($row['is_available']); 
+                
                 $items[] = $row;
             }
         }

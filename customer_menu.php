@@ -1,7 +1,6 @@
 <?php
 // customer_menu.php
 include 'includes/header.php';
-include 'includes/navbar.php';
 ?>
 
 <link href="css/customer_menu.css" rel="stylesheet" />
@@ -12,9 +11,9 @@ include 'includes/navbar.php';
 
         <!-- Brand + quick checkout shortcut -->
         <div class="menu-hero-top">
-            <div class="menu-brand">
-                <i class="fas fa-utensils"></i> OrderPilot
-            </div>
+            <a href="index.html" class="menu-brand" style="text-decoration: none;">
+    <i class="fas fa-utensils"></i> OrderPilot
+</a>
 
             <div class="header-cart-widget">
                 <button class="btn header-clear-btn" id="headerClearCartBtn" onclick="clearCart()" title="Clear cart">

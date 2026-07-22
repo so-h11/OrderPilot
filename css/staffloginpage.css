@@ -1,0 +1,11 @@
+/* css/staffloginpage.css */
+
+body.login-bg {
+    background: linear-gradient(135deg, #e91e63 0%, #e91e63 35%, #f4511e 100%);
+    background-attachment: fixed;
+}
+
+.login-bg .card {
+    border-radius: 16px !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
+}
