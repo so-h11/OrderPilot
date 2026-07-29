@@ -1,0 +1,9 @@
+[
+    {
+        "id": 1,
+        "name": "Nasi Lemak Ayam Goreng",
+        "description": "Coconut rice with fried chicken.",
+        "price": 12.50,
+        "available": true
+    }
+]
