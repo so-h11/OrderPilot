@@ -5,7 +5,6 @@ include 'includes/header.php';
 
 <link href="css/customer_menu.css?v=2" rel="stylesheet" />
 
-<!-- ======================= HERO / ORDERING BANNER ======================= -->
 <div class="menu-hero">
     <div class="menu-hero-inner container-fluid px-4">
 
@@ -36,25 +35,20 @@ include 'includes/header.php';
 
         <h2 class="menu-hero-title">Welcome! Please place your order.</h2>
 
-        <!-- Search + jump-to-cart -->
         <div class="menu-hero-search">
             <div class="search-group">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="menuSearchInput" class="menu-search-input" placeholder="Search menu..." />
-                <button class="btn cart-jump-btn" onclick="scrollToCart()">
-                    <i class="fas fa-shopping-basket me-1"></i> Cart
-                </button>
+
             </div>
         </div>
 
-        <!-- Category filters (built dynamically once the menu loads) -->
         <div class="menu-hero-filters" id="categoryFilters">
             <button class="filter-pill active" data-category="All" onclick="filterMenu('All', this)">All</button>
         </div>
     </div>
 </div>
 
-<!-- ======================= MAIN CONTENT ======================= -->
 <div class="container-fluid px-4 menu-content">
     <div class="row">
 
