@@ -30,13 +30,16 @@ html, body {
 .menu-hero-inner {
     max-width: 1200px;
     margin: 0 auto;
+    position: relative;
 }
 
 .menu-hero-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 28px;
     margin-bottom: 18px;
+
 }
 
 .menu-brand {
@@ -91,6 +94,87 @@ html, body {
     opacity: 0.55;
     cursor: not-allowed;
 }
+
+.btn-logout {
+    background: #ffffff;
+    color: #5c4dd4;
+    padding: 10px 20px;
+    font-size: 14px;
+    transition: opacity 0.15s ease;
+}
+
+.btn-logout:hover {
+    opacity: 0.85;
+}
+
+.top-right-controls {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    z-index: 40;
+}
+
+.logout-container {
+    background: #ffffff;
+    padding: 6px 8px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.logout-container .btn-logout {
+    background: transparent;
+    color: #5c4dd4;
+    padding: 6px 8px;
+    box-shadow: none;
+    border: none;
+}
+
+.logout-container:hover {
+    background: #f3f4f6;
+}
+
+/* Override: make logout a prominent white pill with purple text */
+.logout-container {
+    background: transparent; /* keep container transparent so button shapes the box */
+    padding: 0;
+    box-shadow: none;
+}
+
+.logout-container .btn-logout {
+    background: #ffffff !important;
+    color: var(--op-purple) !important;
+    padding: 10px 20px !important;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    border-radius: 14px !important;
+    display: inline-block !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important;
+    border: none !important;
+    transition: background 0.12s ease, transform 0.08s ease !important;
+}
+
+.logout-container .btn-logout:hover {
+    background: #f3f4f6;
+    transform: translateY(-1px);
+}
+
+/* Ensure icon keeps the same purple tone */
+.logout-container .btn-logout .fa-sign-out-alt {
+    color: var(--op-purple) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #6c5ce7, #8a6ff0);
+    color: #fff;
+    padding: 10px 18px;
+    font-size: 13px;
+    border-radius: 8px;
+}
+
 
 .header-checkout-btn:not(:disabled):hover {
     background: rgba(255, 255, 255, 0.22);

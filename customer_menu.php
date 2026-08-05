@@ -3,26 +3,34 @@
 include 'includes/header.php';
 ?>
 
-<link href="css/customer_menu.css" rel="stylesheet" />
+<link href="css/customer_menu.css?v=2" rel="stylesheet" />
 
 <!-- ======================= HERO / ORDERING BANNER ======================= -->
 <div class="menu-hero">
     <div class="menu-hero-inner container-fluid px-4">
 
-        <!-- Brand + quick checkout shortcut -->
         <div class="menu-hero-top">
             <a href="index.html" class="menu-brand" style="text-decoration: none;">
-    <i class="fas fa-utensils"></i> OrderPilot
-</a>
+                <i class="fas fa-utensils"></i> OrderPilot
+            </a>
 
-            <div class="header-cart-widget">
-                <button class="btn header-clear-btn" id="headerClearCartBtn" onclick="clearCart()" title="Clear cart">
-                    <i class="fas fa-xmark"></i>
-                </button>
-                <button class="btn header-checkout-btn" id="headerCheckoutBtn" onclick="checkout()" disabled>
-                    <span class="header-cart-badge" id="headerCartBadge">0</span>
-                    Checkout
-                </button>
+            <div class="top-right-controls">
+                <div class="logout-container">
+                    <button type="button" class="btn btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-1"></i> Log Out
+                    </button>
+                </div>
+
+                <div class="header-cart-widget">
+                    <button class="btn header-clear-btn" id="headerClearCartBtn" onclick="clearCart()" title="Clear cart">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                    
+                    <button class="btn header-checkout-btn" id="headerCheckoutBtn" onclick="checkout()" disabled>
+                        <span class="header-cart-badge" id="headerCartBadge">0</span>
+                        Checkout
+                    </button>
+                </div>
             </div>
         </div>
 

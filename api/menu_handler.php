@@ -12,7 +12,9 @@ switch ($method) {
         // FETCH ALL MENU ITEMS (Read)
         // ==========================================
         // Join with menu_categories to get the readable category name
-        $sql = "SELECT m.item_id, m.category_id, m.item_name, m.description, m.price, m.image_path, m.is_available, c.category_name 
+        $sql = "SELECT m.item_id, m.category_id, m.item_name, m.description, m.price, 
+                       COALESCE(NULLIF(m.image_path, ''), NULLIF(m.image, '')) AS image_path, 
+                       m.is_available, c.category_name 
                 FROM menu_items m 
                 LEFT JOIN menu_categories c ON m.category_id = c.category_id 
                 ORDER BY m.category_id ASC, m.item_name ASC";

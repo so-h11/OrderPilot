@@ -69,8 +69,47 @@ document.addEventListener('DOMContentLoaded', () => {
 // Handle Logout
 function logout() {
     const isAdminPage = window.location.pathname.includes('/admin/');
+    const isCustomerPage = window.location.pathname.includes('customer_menu.php');
     const logoutUrl = isAdminPage ? '../api/logout_handler.php' : 'api/logout_handler.php';
     const homeUrl = isAdminPage ? '../index.html' : 'index.html';
+
+    if (isCustomerPage) {
+        Swal.fire({
+            title: 'Enter logout PIN',
+            input: 'password',
+            inputLabel: '4-digit PIN',
+            inputPlaceholder: '1234',
+            inputAttributes: {
+                maxlength: 4,
+                inputmode: 'numeric',
+                autocapitalize: 'off',
+                autocorrect: 'off'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Log Out',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            preConfirm: (pin) => {
+                if (!pin) {
+                    Swal.showValidationMessage('Please enter the 4-digit PIN');
+                } else if (pin !== '1234') {
+                    Swal.showValidationMessage('Incorrect PIN');
+                }
+                return pin;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(logoutUrl, { credentials: 'same-origin' })
+                    .then(response => response.json().catch(() => ({})))
+                    .catch(() => ({}))
+                    .finally(() => {
+                        window.location.replace(homeUrl);
+                    });
+            }
+        });
+        return;
+    }
 
     Swal.fire({
         title: 'Logging out...',

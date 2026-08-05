@@ -57,12 +57,12 @@ function renderMenu() {
     }
 
     filtered.forEach(item => {
-        const img = item.image_path ? item.image_path : 'https://via.placeholder.com/400x300?text=No+Image';
+        const imgSrc = item.image_path ? item.image_path : (item.image ? item.image : 'https://via.placeholder.com/400x300?text=No+Image');
         grid.innerHTML += `
             <div class="col-sm-6 col-md-12 col-lg-6 col-xl-4 mb-4">
                 <div class="menu-card">
                     <div class="menu-card-img-wrap" onclick="openItemModal(${item.item_id})">
-                        <img src="${img}" class="menu-card-img" alt="${item.item_name}">
+                        <img src="${imgSrc}" class="menu-card-img" alt="${item.item_name}">
                     </div>
                     <div class="menu-card-body">
                         <h5 class="menu-card-title" onclick="openItemModal(${item.item_id})">${item.item_name}</h5>
@@ -90,7 +90,7 @@ function openItemModal(id) {
     document.getElementById('modalItemCategory').innerText = item.category_name;
     document.getElementById('modalItemDesc').innerText = item.description || '';
     document.getElementById('modalItemPrice').innerText = parseFloat(item.price).toFixed(2);
-    document.getElementById('modalItemImg').src = item.image_path ? item.image_path : 'https://via.placeholder.com/400x300?text=No+Image';
+    document.getElementById('modalItemImg').src = item.image_path ? item.image_path : (item.image ? item.image : 'https://via.placeholder.com/400x300?text=No+Image');
     
     // Reset modal inputs
     document.getElementById('modalItemQty').innerText = '1';

@@ -1,17 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Logout confirmation -------------------------------------
-    // Session destroy + redirect to index.html happens server-side
-    // in logout.php. This just confirms before navigating away.
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            const confirmed = confirm('Are you sure you want to log out?');
-            if (!confirmed) {
-                e.preventDefault();
-            }
-        });
-    }
+    // Handled entirely by logout() in app.js, wired up via the
+    // button's onclick="logout()" in admin_header.php. That function
+    // shows its own SweetAlert confirmation before navigating away,
+    // so no extra listener is needed here.
 
     // Note: "+ Add Staff" / "+ Add New Item" / edit / delete buttons
     // are intentionally not wired up yet, as requested. Hook them up
