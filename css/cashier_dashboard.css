@@ -20,7 +20,8 @@
 }
 
 body {
-  background: #f2f3f7;
+  background: #f2f3f7 !important;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 /* -------------------------------------------------------------------------
@@ -40,7 +41,6 @@ body {
   content: "";
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
   pointer-events: none;
 }
 .op-header::before {
@@ -127,9 +127,9 @@ body {
    Layout wrapper — pulls the stat cards up over the header
    ------------------------------------------------------------------------- */
 .op-body {
-  max-width: 1180px;
+  max-width: 1240px;
   margin: -64px auto 0;
-  padding: 0 40px 60px;
+  padding: 0 30px 60px;
   position: relative;
   z-index: 3;
 }
@@ -149,6 +149,10 @@ body {
   border-radius: var(--op-radius-lg);
   padding: 26px 28px;
   box-shadow: 0 10px 24px rgba(20, 20, 43, 0.08);
+  transition: transform 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
 }
 
 .stat-card .stat-label {
@@ -191,16 +195,39 @@ body {
 }
 
 .op-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 22px 28px;
+  border-bottom: 1px solid #eef0f5;
 }
 
 .op-card-header h5 {
   font-weight: 700;
   color: #4b5060;
   margin: 0;
+}
+
+/* Custom Styling for Search Input & Filter Dropdown */
+#orderSearchInput, 
+#orderStatusFilter {
+  border-radius: var(--op-radius-pill);
+  border: 1px solid #d1d5db;
+  font-size: 0.875rem;
+  padding: 6px 16px;
+  box-shadow: none;
+}
+#orderSearchInput:focus, 
+#orderStatusFilter:focus {
+  border-color: var(--op-indigo);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.input-group .input-group-text {
+  border-top-left-radius: var(--op-radius-pill);
+  border-bottom-left-radius: var(--op-radius-pill);
+  border-color: #d1d5db;
+}
+.input-group #orderSearchInput {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .btn-op-primary {
@@ -219,41 +246,48 @@ body {
   transform: translateY(-1px);
 }
 
-.op-table {
+/* Table Override Fixes for Bootstrap */
+.table.op-table {
+  --bs-table-bg: transparent;
+  --bs-table-accent-bg: transparent;
   margin-bottom: 0;
 }
 .op-table thead th {
-  background: #f6f7fb;
-  color: #7a7f8d;
+  background: #f6f7fb !important;
+  color: #7a7f8d !important;
   font-weight: 700;
-  border: none;
-  padding: 14px 20px;
+  border: none !important;
+  padding: 14px 20px !important;
   text-transform: none;
 }
 .op-table thead th:first-child {
-  padding-left: 28px;
+  padding-left: 28px !important;
 }
 .op-table thead th:last-child {
   text-align: right;
-  padding-right: 28px;
+  padding-right: 28px !important;
 }
 
 .op-table tbody td {
-  padding: 18px 20px;
+  padding: 18px 20px !important;
   vertical-align: middle;
-  border-top: 1px solid #eef0f5;
+  border-top: 1px solid #eef0f5 !important;
   color: var(--op-text-dark);
 }
 .op-table tbody td:first-child {
-  padding-left: 28px;
+  padding-left: 28px !important;
   font-weight: 700;
 }
 .op-table tbody td:last-child {
   text-align: right;
-  padding-right: 28px;
+  padding-right: 28px !important;
 }
 .op-table tbody tr:hover {
-  background: #fafbfe;
+  background: #fafbfe !important;
+}
+
+.clickable-row {
+  transition: background-color 0.15s ease;
 }
 
 .op-time {
@@ -287,60 +321,25 @@ body {
   font-weight: 700;
 }
 
-/* Action buttons */
-.btn-op-update {
-  background: var(--op-indigo);
-  border: none;
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 8px 18px;
-  border-radius: var(--op-radius-pill);
-  margin-right: 8px;
-}
-.btn-op-update:hover {
-  background: #575bee;
-  color: #fff;
-}
-
-.btn-op-pay {
-  background: #fff;
-  border: 1.5px solid var(--op-red);
-  color: var(--op-red);
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 7px 18px;
-  border-radius: var(--op-radius-pill);
-}
-.btn-op-pay:hover {
-  background: var(--op-red);
-  color: #fff;
-}
-
-.btn-op-pay:disabled,
-.btn-op-update:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 /* -------------------------------------------------------------------------
-   Modal tweaks
+   Modal Tweaks
    ------------------------------------------------------------------------- */
-#orderModal .modal-content {
-  border-radius: var(--op-radius-lg);
+.modal-content {
+  border-radius: var(--op-radius-lg) !important;
+  overflow: hidden;
 }
-#orderModal .modal-header,
-#orderModal .modal-footer {
-  border-radius: var(--op-radius-lg) var(--op-radius-lg) 0 0;
+.modal-header {
+  border-bottom: 1px solid #eef0f5;
 }
-#orderModal .modal-footer {
-  border-radius: 0 0 var(--op-radius-lg) var(--op-radius-lg);
+.modal-footer {
+  border-top: 1px solid #eef0f5;
 }
-#orderModal .list-group-item {
-  border: none;
-  padding: 10px 0;
-  display: flex;
-  justify-content: space-between;
+
+#editOrderModal .table th {
+  background: #f8fafc;
+  font-size: 0.85rem;
+  color: #64748b;
+  text-transform: uppercase;
 }
 
 /* -------------------------------------------------------------------------
@@ -382,8 +381,8 @@ body {
   .op-table tbody td {
     display: flex;
     justify-content: space-between;
-    padding: 6px 0;
-    border-top: none;
+    padding: 6px 0 !important;
+    border-top: none !important;
   }
   .op-table tbody td::before {
     content: attr(data-label);
@@ -394,6 +393,6 @@ body {
   .op-table tbody td:last-child {
     justify-content: flex-start;
     gap: 8px;
-    padding-top: 10px;
+    padding-top: 10px !important;
   }
 }

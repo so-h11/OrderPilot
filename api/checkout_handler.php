@@ -26,6 +26,7 @@ try {
     $input = json_decode(file_get_contents('php://input'), true);
     $cartItems = $input['items'] ?? [];
     $paymentMethod = trim($input['payment_method'] ?? 'Cash');
+    $orderType = trim($input['order_type'] ?? 'customer');
 
     if (!is_array($cartItems) || count($cartItems) === 0) {
         echo json_encode(['status' => 'error', 'message' => 'Your cart is empty.']);
@@ -59,11 +60,14 @@ try {
 
     $conn->begin_transaction();
 
-    // Check if creator is Cashier/Admin vs Customer
+    // STRICT CHECK: Only Walk-in POS orders placed directly from Cashier Terminal are auto-paid.
+    // Regular Customer orders ALWAYS default to 'pending' + 'unpaid' for Cashier Approval.
     $normalizedRole = strtolower($userRole);
-    $isCashier = in_array($normalizedRole, ['cashier', 'administrator', 'admin']);
-    $orderStatus = $isCashier ? 'new' : 'pending';
-    $paymentStatus = $isCashier ? 'Paid' : 'unpaid';
+    $isCashierUser = in_array($normalizedRole, ['cashier', 'administrator', 'admin']);
+    $isWalkInPOS = ($orderType === 'walkin' && $isCashierUser);
+
+    $orderStatus = $isWalkInPOS ? 'new' : 'pending';
+    $paymentStatus = $isWalkInPOS ? 'Paid' : 'unpaid';
     $now = date('Y-m-d H:i:s');
 
     $orderStmt = $conn->prepare(

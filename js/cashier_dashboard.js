@@ -15,6 +15,8 @@
     btnViewCompleted: document.getElementById("btnViewCompleted"),
     btnClearAllCompleted: document.getElementById("btnClearAllCompleted"),
     btnNewWalkIn: document.getElementById("btnNewWalkIn"),
+    orderSearchInput: document.getElementById("orderSearchInput"),
+    orderStatusFilter: document.getElementById("orderStatusFilter"),
   };
 
   let ordersCache = [];
@@ -22,8 +24,9 @@
   let posMenuItems = [];
   let posCart = [];
   let currentPOSCategory = 'All';
+  let activeEditingOrderItems = [];
 
-  let orderModal, completedModal, walkInPOSModal, posItemModal, posCheckoutModal;
+  let orderModal, completedModal, walkInPOSModal, posItemModal, posCheckoutModal, editOrderModal;
 
   document.addEventListener("DOMContentLoaded", function () {
     if (document.getElementById("orderModal")) orderModal = new bootstrap.Modal(document.getElementById("orderModal"));
@@ -31,6 +34,7 @@
     if (document.getElementById("walkInPOSModal")) walkInPOSModal = new bootstrap.Modal(document.getElementById("walkInPOSModal"));
     if (document.getElementById("posItemModal")) posItemModal = new bootstrap.Modal(document.getElementById("posItemModal"));
     if (document.getElementById("posCheckoutModal")) posCheckoutModal = new bootstrap.Modal(document.getElementById("posCheckoutModal"));
+    if (document.getElementById("editOrderModal")) editOrderModal = new bootstrap.Modal(document.getElementById("editOrderModal"));
 
     loadDashboard();
     setInterval(loadDashboard, REFRESH_INTERVAL_MS);
@@ -39,14 +43,14 @@
     if (els.statCompletedCard) els.statCompletedCard.addEventListener("click", openCompletedOrdersModal);
     if (els.btnClearAllCompleted) els.btnClearAllCompleted.addEventListener("click", clearAllCompletedOrders);
 
-    if (els.btnNewWalkIn) {
-      els.btnNewWalkIn.addEventListener("click", openWalkInPOS);
-    }
+    if (els.btnNewWalkIn) els.btnNewWalkIn.addEventListener("click", openWalkInPOS);
+
+    // Live Search & Filter Event Listeners
+    if (els.orderSearchInput) els.orderSearchInput.addEventListener("input", () => renderOrderTable(ordersCache));
+    if (els.orderStatusFilter) els.orderStatusFilter.addEventListener("change", () => renderOrderTable(ordersCache));
 
     const posSearch = document.getElementById("posMenuSearch");
-    if (posSearch) {
-      posSearch.addEventListener("input", renderPOSMenu);
-    }
+    if (posSearch) posSearch.addEventListener("input", renderPOSMenu);
 
     // Active Orders Event Delegation
     if (els.orderTable) {
@@ -54,6 +58,7 @@
         const row = e.target.closest("tr");
         const approveBtn = e.target.closest("[data-action='approve-pay']");
         const cancelBtn = e.target.closest("[data-action='cancel']");
+        const editBtn = e.target.closest("[data-action='edit-order']");
         const detailsBtn = e.target.closest("[data-action='view-details']");
 
         if (approveBtn) {
@@ -62,8 +67,11 @@
         } else if (cancelBtn) {
           e.stopPropagation();
           cancelOrder(cancelBtn.dataset.orderId, cancelBtn);
+        } else if (editBtn) {
+          e.stopPropagation();
+          openEditOrderModal(editBtn.dataset.orderId);
         } else if (detailsBtn || row) {
-          const orderId = approveBtn?.dataset.orderId || cancelBtn?.dataset.orderId || detailsBtn?.dataset.orderId || row?.dataset.orderId;
+          const orderId = approveBtn?.dataset.orderId || cancelBtn?.dataset.orderId || editBtn?.dataset.orderId || detailsBtn?.dataset.orderId || row?.dataset.orderId;
           if (orderId) openOrderModal(orderId, false);
         }
       });
@@ -109,12 +117,40 @@
     if (els.statCompleted) els.statCompleted.textContent = stats.completed || 0;
   }
 
+  // Filtered Rendering with Search + Dropdown Filter
   function renderOrderTable(orders) {
     if (!orders || !orders.length) {
-      els.orderTable.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No pending customer orders right now.</td></tr>';
+      els.orderTable.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No customer orders right now.</td></tr>';
       return;
     }
-    els.orderTable.innerHTML = orders.map(renderOrderRow).join("");
+
+    const searchKeyword = (els.orderSearchInput?.value || "").toLowerCase().trim();
+    const statusFilter = els.orderStatusFilter?.value || "ALL";
+
+    const filtered = orders.filter((order) => {
+      // 1. Dropdown Status Filter
+      if (statusFilter !== "ALL") {
+        if (statusFilter === "paid" && order.payment_status.toLowerCase() !== "paid") return false;
+        if (statusFilter === "unpaid" && order.payment_status.toLowerCase() !== "unpaid") return false;
+        if (statusFilter !== "paid" && statusFilter !== "unpaid" && order.kitchen_status !== statusFilter) return false;
+      }
+
+      // 2. Search Keyword Filter (ID or Item Names)
+      if (searchKeyword) {
+        const idMatches = String(order.order_id).includes(searchKeyword);
+        const itemMatches = order.items && order.items.some(i => i.name.toLowerCase().includes(searchKeyword));
+        if (!idMatches && !itemMatches) return false;
+      }
+
+      return true;
+    });
+
+    if (!filtered.length) {
+      els.orderTable.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No orders matching your criteria.</td></tr>';
+      return;
+    }
+
+    els.orderTable.innerHTML = filtered.map(renderOrderRow).join("");
   }
 
   function renderOrderRow(order) {
@@ -125,9 +161,13 @@
     let kitchenStatusLabel = order.kitchen_status === 'pending_approval' ? 'Pending Approval' : (order.kitchen_status === 'pending' ? 'In Queue' : order.kitchen_status);
     let statusClass = (order.kitchen_status === 'pending_approval' || !isPaid) ? 'status-preparing' : 'status-ready';
 
-    let actionButtons = '';
+    let actionButtons = `
+      <button type="button" class="btn btn-sm btn-outline-warning fw-bold me-1" data-action="edit-order" data-order-id="${order.order_id}" title="Edit Order Items">
+        <i class="fas fa-pen-to-square"></i> Edit
+      </button>`;
+
     if (isUnapproved) {
-      actionButtons = `
+      actionButtons += `
         <button type="button" class="btn btn-sm btn-success fw-bold me-1" data-action="approve-pay" data-order-id="${order.order_id}">
           <i class="fas fa-check me-1"></i> Approve & Pay
         </button>
@@ -135,7 +175,7 @@
           <i class="fas fa-xmark"></i>
         </button>`;
     } else {
-      actionButtons = `
+      actionButtons += `
         <button type="button" class="btn btn-sm btn-outline-primary fw-bold" data-action="view-details" data-order-id="${order.order_id}">
           <i class="fas fa-eye me-1"></i> View / Receipt
         </button>`;
@@ -152,6 +192,123 @@
       </tr>`;
   }
 
+  // --- EDIT ORDER MODAL LOGIC ---
+  function openEditOrderModal(orderId) {
+    const order = ordersCache.find((o) => String(o.order_id) === String(orderId));
+    if (!order) return;
+
+    document.getElementById("editOrderId").value = order.order_id;
+    document.getElementById("editOrderModalTitle").textContent = `Edit Order #${order.order_id}`;
+
+    // Clone items into editable array
+    activeEditingOrderItems = JSON.parse(JSON.stringify(order.items || []));
+    renderEditOrderItems();
+
+    if (editOrderModal) editOrderModal.show();
+  }
+
+  function renderEditOrderItems() {
+    const tbody = document.getElementById("editOrderItemsList");
+    tbody.innerHTML = "";
+    let grandTotal = 0;
+
+    if (!activeEditingOrderItems.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-3">Order must contain at least one item.</td></tr>';
+      document.getElementById("editOrderGrandTotal").textContent = "0.00";
+      return;
+    }
+
+    activeEditingOrderItems.forEach((item, index) => {
+      const priceEach = item.qty > 0 ? (item.subtotal / item.qty) : 0;
+      const currentSubtotal = priceEach * item.qty;
+      grandTotal += currentSubtotal;
+      item.subtotal = currentSubtotal;
+
+      tbody.innerHTML += `
+        <tr>
+          <td><strong>${escapeHtml(item.name)}</strong><br><small class="text-muted">RM ${priceEach.toFixed(2)} each</small></td>
+          <td>
+            <div class="input-group input-group-sm">
+              <button class="btn btn-outline-secondary" type="button" onclick="window.updateEditQty(${index}, -1)">-</button>
+              <input type="text" class="form-control text-center fw-bold bg-white" value="${item.qty}" readonly>
+              <button class="btn btn-outline-secondary" type="button" onclick="window.updateEditQty(${index}, 1)">+</button>
+            </div>
+          </td>
+          <td>
+            <input type="text" class="form-control form-control-sm" value="${escapeHtml(item.remarks || '')}" placeholder="Note..." onchange="window.updateEditRemarks(${index}, this.value)">
+          </td>
+          <td style="text-align: right;" class="fw-bold">RM ${currentSubtotal.toFixed(2)}</td>
+          <td style="text-align: center;">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="window.removeEditItem(${index})"><i class="fas fa-trash-can"></i></button>
+          </td>
+        </tr>`;
+    });
+
+    document.getElementById("editOrderGrandTotal").textContent = grandTotal.toFixed(2);
+  }
+
+  window.updateEditQty = function (index, delta) {
+    if (activeEditingOrderItems[index]) {
+      const newQty = activeEditingOrderItems[index].qty + delta;
+      if (newQty >= 1 && newQty <= 50) {
+        activeEditingOrderItems[index].qty = newQty;
+        renderEditOrderItems();
+      }
+    }
+  };
+
+  window.updateEditRemarks = function (index, val) {
+    if (activeEditingOrderItems[index]) {
+      activeEditingOrderItems[index].remarks = val.trim();
+    }
+  };
+
+  window.removeEditItem = function (index) {
+    activeEditingOrderItems.splice(index, 1);
+    renderEditOrderItems();
+  };
+
+  window.saveOrderEdits = function () {
+    const orderId = document.getElementById("editOrderId").value;
+    const btn = document.getElementById("btnSaveEditedOrder");
+
+    if (!activeEditingOrderItems.length) {
+      alert("Order cannot be empty. Cancel or add items.");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin me-1"></i> Saving...`;
+
+    fetch("edit_order_handler.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        order_id: orderId,
+        items: activeEditingOrderItems
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-save me-1"></i> Save Changes`;
+
+        if (data.success || data.status === "success") {
+          if (editOrderModal) editOrderModal.hide();
+          loadDashboard();
+          alert(`Order #${orderId} updated successfully!`);
+        } else {
+          alert("Error updating order: " + (data.message || "Failed"));
+        }
+      })
+      .catch((err) => {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-save me-1"></i> Save Changes`;
+        alert("Failed to reach server to save order edits.");
+      });
+  };
+
+  // --- REST OF POS / COMPLETED / UTILITY FUNCTIONS ---
   function openWalkInPOS() {
     posCart = [];
     updatePOSCartUI();
@@ -359,11 +516,12 @@
     if (posCheckoutModal) posCheckoutModal.show();
   };
 
-  window.submitPOSOrder = function () {
+window.submitPOSOrder = function () {
     const btn = document.getElementById("btnPOSPlaceOrder");
     const method = document.getElementById("posPaymentMethod").value;
 
     const payload = {
+      order_type: "walkin", // Identifies this as a Cashier POS walk-in order
       payment_method: method,
       items: posCart.map((c) => ({
         item_id: c.id,
@@ -625,7 +783,7 @@
 
   function escapeHtml(str) {
     const div = document.createElement("div");
-    div.textContent = str;
+    div.textContent = str || "";
     return div.innerHTML;
   }
 })();
