@@ -27,9 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Determine where to redirect based on role
             $redirect = 'index.html'; // Default fallback
             if ($role === 'Customer') {
-                $redirect = 'customer_menu.php';
+                $redirect = 'customer/customer_menu.php';
             } elseif ($role === 'Cashier') {
-                $redirect = 'cashier_dashboard.php';
+                $redirect = 'cashier/cashier_dashboard.php';
             } elseif ($role === 'Administrator') {
                 $redirect = 'admin/admin_dashboard.php';
             } elseif ($role === 'Kitchen Staff') {

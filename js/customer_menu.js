@@ -4,12 +4,25 @@ let menuItems = [];
 let currentCategory = 'All';
 let cart = []; 
 let itemModal; // Declare empty variable first
+let checkoutModal;
+let receiptModal;
+let lastOrderData = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize the modal ONLY after the HTML is fully loaded
+    // 1. Initialize the modals ONLY after the HTML is fully loaded
     const modalElement = document.getElementById('itemDetailsModal');
     if (modalElement) {
         itemModal = new bootstrap.Modal(modalElement);
+    }
+
+    const checkoutModalElement = document.getElementById('checkoutModal');
+    if (checkoutModalElement) {
+        checkoutModal = new bootstrap.Modal(checkoutModalElement);
+    }
+
+    const receiptModalElement = document.getElementById('receiptModal');
+    if (receiptModalElement) {
+        receiptModal = new bootstrap.Modal(receiptModalElement);
     }
     
     // 2. Fetch the data
@@ -25,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 1. Fetch menu from the database
 function fetchMenu() {
-    fetch('api/menu_handler.php')
+    fetch('../api/menu_handler.php')
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
@@ -57,7 +70,8 @@ function renderMenu() {
     }
 
     filtered.forEach(item => {
-        const imgSrc = item.image_path ? item.image_path : (item.image ? item.image : 'https://via.placeholder.com/400x300?text=No+Image');
+        const rawImage = item.image_path || item.image;
+        const imgSrc = rawImage ? '../' + rawImage : 'https://via.placeholder.com/400x300?text=No+Image';
         grid.innerHTML += `
             <div class="col-sm-6 col-md-12 col-lg-6 col-xl-4 mb-4">
                 <div class="menu-card">
@@ -90,7 +104,8 @@ function openItemModal(id) {
     document.getElementById('modalItemCategory').innerText = item.category_name;
     document.getElementById('modalItemDesc').innerText = item.description || '';
     document.getElementById('modalItemPrice').innerText = parseFloat(item.price).toFixed(2);
-    document.getElementById('modalItemImg').src = item.image_path ? item.image_path : (item.image ? item.image : 'https://via.placeholder.com/400x300?text=No+Image');
+    const rawImage = item.image_path || item.image;
+    document.getElementById('modalItemImg').src = rawImage ? '../' + rawImage : 'https://via.placeholder.com/400x300?text=No+Image';
     
     // Reset modal inputs
     document.getElementById('modalItemQty').innerText = '1';
@@ -245,10 +260,140 @@ function scrollToCart() {
 }
 
 function checkout() {
-    Swal.fire({
-        title: 'Ready to Checkout!',
-        text: 'This will be connected to the database in our next session.',
-        icon: 'info',
-        confirmButtonColor: '#7c3aed'
+    if (cart.length === 0) return;
+    renderCheckoutSummary();
+    checkoutModal.show();
+}
+
+// 12. Render the itemized summary inside the checkout confirmation modal
+function renderCheckoutSummary() {
+    const list = document.getElementById('checkoutSummaryList');
+    const totalEl = document.getElementById('checkoutTotalAmount');
+    list.innerHTML = '';
+    let total = 0;
+
+    cart.forEach(cItem => {
+        const subtotal = cItem.price * cItem.qty;
+        total += subtotal;
+        const remarkHtml = cItem.remarks ? `<div class="checkout-summary-remarks">Note: ${cItem.remarks}</div>` : '';
+
+        list.innerHTML += `
+            <li class="checkout-summary-line">
+                <div>
+                    <div class="checkout-summary-name">${cItem.qty} x ${cItem.name}</div>
+                    ${remarkHtml}
+                </div>
+                <div class="checkout-summary-subtotal">RM ${subtotal.toFixed(2)}</div>
+            </li>
+        `;
     });
+
+    totalEl.innerText = total.toFixed(2);
+}
+
+// 13. Submit the order to the backend
+function placeOrder() {
+    const placeBtn = document.getElementById('placeOrderBtn');
+    const paymentMethod = document.getElementById('paymentMethodSelect').value;
+
+    const payload = {
+        payment_method: paymentMethod,
+        items: cart.map(cItem => ({
+            item_id: cItem.id,
+            quantity: cItem.qty,
+            remarks: cItem.remarks
+        }))
+    };
+
+    placeBtn.disabled = true;
+    placeBtn.innerText = 'Placing order...';
+
+    fetch('../api/checkout_handler.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+        .then(res => res.json())
+        .then(data => {
+            placeBtn.disabled = false;
+            placeBtn.innerText = 'Place Order';
+
+            if (data.status !== 'success') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Could not place order',
+                    text: data.message || 'Something went wrong. Please try again.'
+                });
+                return;
+            }
+
+            // Snapshot the cart lines now, before we clear it, so the
+            // receipt still has names/prices to display.
+            lastOrderData = {
+                orderId: data.order_id,
+                total: data.total_amount,
+                paymentMethod: data.payment_method,
+                createdAt: data.created_at,
+                lines: cart.map(cItem => ({
+                    name: cItem.name,
+                    qty: cItem.qty,
+                    price: cItem.price,
+                    remarks: cItem.remarks
+                }))
+            };
+
+            checkoutModal.hide();
+            renderReceipt(lastOrderData);
+            receiptModal.show();
+
+            cart = [];
+            updateCartUI();
+        })
+        .catch(err => {
+            placeBtn.disabled = false;
+            placeBtn.innerText = 'Place Order';
+            console.error('Checkout error:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Network error',
+                text: 'Could not reach the server. Please try again.'
+            });
+        });
+}
+
+// 14. Fill in the printable order slip
+function renderReceipt(order) {
+    document.getElementById('receiptQueueNumber').innerText = '#' + order.orderId;
+
+    const dateStr = order.createdAt ? new Date(order.createdAt.replace(' ', 'T')).toLocaleString() : new Date().toLocaleString();
+    document.getElementById('receiptMeta').innerText = `Order #${order.orderId} \u2022 ${dateStr}`;
+
+    const itemsList = document.getElementById('receiptItemsList');
+    itemsList.innerHTML = '';
+
+    order.lines.forEach(line => {
+        const remarkHtml = line.remarks ? `<div class="receipt-line-remarks">Note: ${line.remarks}</div>` : '';
+        itemsList.innerHTML += `
+            <li class="receipt-line-item">
+                <div>
+                    <div>${line.qty} x ${line.name}</div>
+                    ${remarkHtml}
+                </div>
+                <div>RM ${(line.price * line.qty).toFixed(2)}</div>
+            </li>
+        `;
+    });
+
+    document.getElementById('receiptTotalAmount').innerText = parseFloat(order.total).toFixed(2);
+    document.getElementById('receiptPaymentRow').innerText = `Payment: ${order.paymentMethod} \u2022 pay at counter`;
+}
+
+// 15. Print the slip - the browser's own dialog lets the customer
+//     choose a physical printer or "Save as PDF" as the destination.
+function printReceipt() {
+    window.print();
+}
+
+function finishOrder() {
+    lastOrderData = null;
 }

@@ -69,9 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // Handle Logout
 function logout() {
     const isAdminPage = window.location.pathname.includes('/admin/');
-    const isCustomerPage = window.location.pathname.includes('customer_menu.php');
-    const logoutUrl = isAdminPage ? '../api/logout_handler.php' : 'api/logout_handler.php';
-    const homeUrl = isAdminPage ? '../index.html' : 'index.html';
+    const isCashierPage = window.location.pathname.includes('/cashier/');
+    const isCustomerPage = window.location.pathname.includes('customer/customer_menu.php');
+    const needsParentPrefix = isAdminPage || isCashierPage || isCustomerPage;
+    const logoutUrl = needsParentPrefix ? '../api/logout_handler.php' : 'api/logout_handler.php';
+    const homeUrl = needsParentPrefix ? '../index.html' : 'index.html';
 
     if (isCustomerPage) {
         Swal.fire({

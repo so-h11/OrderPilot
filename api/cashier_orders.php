@@ -2,22 +2,25 @@
 // api/cashier_orders.php
 session_start();
 header('Content-Type: application/json');
+date_default_timezone_set('Asia/Kuala_Lumpur');
+
 require_once '../db_connect.php';
+$conn->query("SET time_zone = '+08:00'");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     echo json_encode(["status" => "error", "message" => "Invalid request method."]);
     exit();
 }
 
-// Fetch today's orders (excluding cancelled)
-$sql = "SELECT o.order_id, o.total_amount, o.order_status, o.payment_status, o.created_at, 
+$sql = "SELECT o.order_id, o.total_amount, o.order_status, o.payment_status, 
+               COALESCE(o.payment_method, 'Cash') AS payment_method, o.created_at, 
                od.quantity, od.subtotal, od.remarks, m.item_name
         FROM orders o
         JOIN order_details od ON o.order_id = od.order_id
         JOIN menu_items m ON od.item_id = m.item_id
         WHERE o.order_status != 'cancelled'
         AND DATE(o.created_at) = CURDATE()
-        ORDER BY o.order_id DESC"; // Newest orders at the top
+        ORDER BY o.order_id DESC";
 
 $result = $conn->query($sql);
 $orders = [];
@@ -29,13 +32,16 @@ if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $id = $row['order_id'];
         
-        // Calculate stats on the fly
         if (!isset($orders[$id])) {
             $orders[$id] = [
                 'id' => $id,
+                'order_id' => $id,
                 'total' => floatval($row['total_amount']),
+                'total_amount' => floatval($row['total_amount']),
                 'status' => $row['order_status'],
+                'order_status' => $row['order_status'],
                 'payment_status' => $row['payment_status'],
+                'payment_method' => $row['payment_method'],
                 'time' => date('h:i A', strtotime($row['created_at'])),
                 'items' => []
             ];

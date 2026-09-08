@@ -3,6 +3,6 @@
     <!-- SweetAlert2 for notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Global JS -->
-    <script src="assets/js/app.js"></script>
+    <script src="<?= $assetsPrefix ?>assets/js/app.js"></script>
 </body>
 </html>

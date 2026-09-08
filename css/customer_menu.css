@@ -636,3 +636,193 @@ html, body {
         margin-top: 8px;
     }
 }
+
+/* ==========================================================================
+   Checkout confirmation modal
+   ========================================================================== */
+
+.checkout-summary-list {
+    list-style: none;
+    margin: 0 0 14px;
+    padding: 0;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.checkout-summary-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.checkout-summary-line:last-child {
+    border-bottom: none;
+}
+
+.checkout-summary-name {
+    font-weight: 600;
+    font-size: 14.5px;
+    color: var(--op-text-dark);
+}
+
+.checkout-summary-remarks {
+    font-size: 12.5px;
+    color: var(--op-text-muted);
+    font-style: italic;
+    margin-top: 2px;
+}
+
+.checkout-summary-subtotal {
+    font-weight: 700;
+    font-size: 14.5px;
+    white-space: nowrap;
+}
+
+.checkout-summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 17px;
+    padding-top: 12px;
+    border-top: 2px solid #f1f1f1;
+}
+
+.checkout-payment-note {
+    font-size: 12.5px;
+    color: var(--op-text-muted);
+    margin-top: 6px;
+}
+
+/* ==========================================================================
+   Order success / printable receipt
+   ========================================================================== */
+
+.receipt-success-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(90deg, var(--op-purple) 0%, var(--op-pink-accent) 100%);
+    color: #fff;
+    padding: 20px 24px;
+}
+
+.receipt-success-banner i {
+    font-size: 30px;
+}
+
+.receipt-success-title {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.receipt-success-sub {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.receipt-print-area {
+    padding: 24px;
+}
+
+.receipt-header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.receipt-brand {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    color: var(--op-text-dark);
+}
+
+.receipt-queue-label {
+    font-size: 12px;
+    color: var(--op-text-muted);
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.receipt-queue-number {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--op-purple);
+    line-height: 1.1;
+}
+
+.receipt-meta {
+    font-size: 12.5px;
+    color: var(--op-text-muted);
+    margin-top: 6px;
+}
+
+.receipt-items {
+    list-style: none;
+    margin: 0 0 14px;
+    padding: 14px 0;
+    border-top: 1px dashed #d1d5db;
+    border-bottom: 1px dashed #d1d5db;
+}
+
+.receipt-line-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    padding: 6px 0;
+}
+
+.receipt-line-remarks {
+    font-size: 12px;
+    color: var(--op-text-muted);
+    font-style: italic;
+}
+
+.receipt-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.receipt-payment-row {
+    font-size: 12.5px;
+    color: var(--op-text-muted);
+    margin-bottom: 16px;
+}
+
+.receipt-footer {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--op-text-muted);
+}
+
+/* Only the order slip prints - everything else on the page is hidden. */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #receiptPrintArea,
+    #receiptPrintArea * {
+        visibility: visible;
+    }
+
+    #receiptPrintArea {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 0;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}

@@ -1,15 +1,15 @@
 <?php
 // customer_menu.php
-include 'includes/header.php';
+include '../includes/header.php';
 ?>
 
-<link href="css/customer_menu.css?v=2" rel="stylesheet" />
+<link href="../css/customer_menu.css?v=2" rel="stylesheet" />
 
 <div class="menu-hero">
     <div class="menu-hero-inner container-fluid px-4">
 
         <div class="menu-hero-top">
-            <a href="index.html" class="menu-brand" style="text-decoration: none;">
+            <a href="../index.html" class="menu-brand" style="text-decoration: none;">
                 <i class="fas fa-utensils"></i> OrderPilot
             </a>
 
@@ -130,6 +130,88 @@ include 'includes/header.php';
     </div>
 </div>
 
-<script src="js/customer_menu.js"></script>
+<!-- ======================= CHECKOUT CONFIRMATION MODAL ======================= -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow checkout-modal">
+            <div class="modal-header border-0">
+                <h5 class="fw-bold mb-0"><i class="fas fa-clipboard-check me-2"></i>Confirm Your Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="checkout-summary-list" id="checkoutSummaryList"></ul>
 
-<?php include 'includes/footer.php'; ?>
+                <div class="checkout-summary-total">
+                    <span>Total</span>
+                    <span>RM <span id="checkoutTotalAmount">0.00</span></span>
+                </div>
+
+                <div class="mt-3">
+                    <label for="paymentMethodSelect" class="form-label fw-bold">Payment Method</label>
+                    <select class="form-select" id="paymentMethodSelect">
+                        <option value="Cash">Cash</option>
+                        <option value="Card">Card</option>
+                        <option value="E-Wallet">E-Wallet</option>
+                    </select>
+                    <div class="checkout-payment-note">You'll pay at the counter when you collect your order.</div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn checkout-btn w-100 py-2" id="placeOrderBtn" onclick="placeOrder()">
+                    Place Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ORDER SUCCESS / RECEIPT MODAL ======================= -->
+<div class="modal fade" id="receiptModal" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body p-0">
+
+                <div class="receipt-success-banner">
+                    <i class="fas fa-circle-check"></i>
+                    <div>
+                        <div class="receipt-success-title">Order placed!</div>
+                        <div class="receipt-success-sub">Show this queue number at the counter to collect your order.</div>
+                    </div>
+                </div>
+
+                <div class="receipt-print-area" id="receiptPrintArea">
+                    <div class="receipt-header">
+                        <div class="receipt-brand">OrderPilot</div>
+                        <div class="receipt-queue-label">Queue No.</div>
+                        <div class="receipt-queue-number" id="receiptQueueNumber">--</div>
+                        <div class="receipt-meta" id="receiptMeta"></div>
+                    </div>
+
+                    <ul class="receipt-items" id="receiptItemsList"></ul>
+
+                    <div class="receipt-total-row">
+                        <span>Total</span>
+                        <span>RM <span id="receiptTotalAmount">0.00</span></span>
+                    </div>
+
+                    <div class="receipt-payment-row" id="receiptPaymentRow"></div>
+
+                    <div class="receipt-footer">Thank you for ordering with OrderPilot!</div>
+                </div>
+
+            </div>
+            <div class="modal-footer border-0 pt-0 no-print">
+                <button type="button" class="btn btn-outline-secondary" onclick="printReceipt()">
+                    <i class="fas fa-print me-1"></i> Print / Save as PDF
+                </button>
+                <button type="button" class="btn checkout-btn" data-bs-dismiss="modal" onclick="finishOrder()">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../js/customer_menu.js?v=<?php echo @filemtime(__DIR__ . '/../js/customer_menu.js') ?: time(); ?>"></script>
+
+<?php include '../includes/footer.php'; ?>

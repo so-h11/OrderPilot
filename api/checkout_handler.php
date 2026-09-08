@@ -2,84 +2,99 @@
 // api/checkout_handler.php
 session_start();
 header('Content-Type: application/json');
-require_once '../db_connect.php';
+date_default_timezone_set('Asia/Kuala_Lumpur');
 
-// Ensure it's a POST request
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(["status" => "error", "message" => "Invalid request method."]);
-    exit();
+$dbConnectCandidates = [
+    __DIR__ . '/db_connect.php',
+    __DIR__ . '/../db_connect.php',
+    __DIR__ . '/includes/db_connect.php',
+    __DIR__ . '/../includes/db_connect.php'
+];
+
+$dbConnectFound = null;
+foreach ($dbConnectCandidates as $candidate) {
+    if (file_exists($candidate)) { $dbConnectFound = $candidate; break; }
 }
+if (!$dbConnectFound) { echo json_encode(['status' => 'error', 'message' => 'db_connect.php not found']); exit; }
+require_once $dbConnectFound;
 
-// Read the raw JSON payload from the frontend fetch() request
-$jsonPayload = file_get_contents("php://input");
-$data = json_decode($jsonPayload, true);
-
-// Validate the payload
-if (!$data || empty($data['cartItems'])) {
-    echo json_encode(["status" => "error", "message" => "Cart is empty or invalid data received."]);
-    exit();
-}
-
-$totalAmount = floatval($data['totalAmount']);
-// For now, device_id is NULL. In Sprint 3, we will link this to the 4-digit pairing code.
-$deviceId = isset($data['deviceId']) ? intval($data['deviceId']) : "NULL"; 
-
-// ---------------------------------------------------------
-// START TRANSACTION
-// ---------------------------------------------------------
-$conn->begin_transaction();
+$conn->query("SET time_zone = '+08:00'");
 
 try {
-    // 1. Insert the main order into the `orders` table
-    // order_status defaults to 'new' and payment_status defaults to 'Unpaid'
-    $sqlOrder = "INSERT INTO orders (device_id, total_amount) VALUES ($deviceId, $totalAmount)";
-    
-    if (!$conn->query($sqlOrder)) {
-        throw new Exception("Failed to create the main order: " . $conn->error);
+    $deviceId = !empty($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+    $userRole = $_SESSION['role'] ?? '';
+    $input = json_decode(file_get_contents('php://input'), true);
+    $cartItems = $input['items'] ?? [];
+    $paymentMethod = trim($input['payment_method'] ?? 'Cash');
+
+    if (!is_array($cartItems) || count($cartItems) === 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Your cart is empty.']);
+        exit;
     }
 
-    // Grab the newly generated Order ID
-    $orderId = $conn->insert_id; 
+    $total = 0.0;
+    $validatedItems = [];
 
-    // 2. Prepare the statement for inserting into `order_details`
-    // Prepared statements are highly secure and efficient for looping through cart items
-    $stmtDetails = $conn->prepare("INSERT INTO order_details (order_id, item_id, quantity, subtotal, remarks) VALUES (?, ?, ?, ?, ?)");
-    
-    if (!$stmtDetails) {
-        throw new Exception("Failed to prepare order details statement: " . $conn->error);
-    }
+    foreach ($cartItems as $line) {
+        $itemId = (int) ($line['item_id'] ?? $line['id'] ?? 0);
+        $quantity = (int) ($line['quantity'] ?? $line['qty'] ?? 0);
+        $remarks = trim((string) ($line['remarks'] ?? ''));
 
-    // 3. Loop through the cart items and execute the insert for each one
-    foreach ($data['cartItems'] as $item) {
-        $itemId = intval($item['item_id']);
-        $quantity = intval($item['quantity']);
-        $subtotal = floatval($item['price']) * $quantity;
-        $remarks = $item['remarks'] ?? ''; // Can be empty
+        $stmt = $conn->prepare('SELECT price, is_available FROM menu_items WHERE item_id = ?');
+        $stmt->bind_param('i', $itemId);
+        $stmt->execute();
+        $stmt->bind_result($price, $isAvailable);
+        $found = $stmt->fetch();
+        $stmt->close();
 
-        // Bind the parameters (i = integer, d = double/float, s = string)
-        $stmtDetails->bind_param("iiids", $orderId, $itemId, $quantity, $subtotal, $remarks);
-        
-        if (!$stmtDetails->execute()) {
-            throw new Exception("Failed to insert item $itemId: " . $stmtDetails->error);
+        if (!$found || !$isAvailable) {
+            echo json_encode(['status' => 'error', 'message' => 'One or more items in the cart are unavailable.']);
+            exit;
         }
+
+        $subtotal = round(((float) $price) * $quantity, 2);
+        $total += $subtotal;
+        $validatedItems[] = ['item_id' => $itemId, 'quantity' => $quantity, 'subtotal' => $subtotal, 'remarks' => $remarks];
     }
 
-    // 4. Commit the transaction (Save everything permanently)
-    $conn->commit();
-    $stmtDetails->close();
+    $conn->begin_transaction();
 
-    // Return the new Order ID so the frontend can show the customer their order number
+    // Check if creator is Cashier/Admin vs Customer
+    $normalizedRole = strtolower($userRole);
+    $isCashier = in_array($normalizedRole, ['cashier', 'administrator', 'admin']);
+    $orderStatus = $isCashier ? 'new' : 'pending';
+    $paymentStatus = $isCashier ? 'Paid' : 'unpaid';
+    $now = date('Y-m-d H:i:s');
+
+    $orderStmt = $conn->prepare(
+        'INSERT INTO orders (device_id, total_amount, order_status, payment_status, payment_method, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+    );
+    $orderStmt->bind_param('idssss', $deviceId, $total, $orderStatus, $paymentStatus, $paymentMethod, $now);
+    $orderStmt->execute();
+    $orderId = $orderStmt->insert_id;
+    $orderStmt->close();
+
+    $detailStmt = $conn->prepare('INSERT INTO order_details (order_id, item_id, quantity, subtotal, remarks) VALUES (?, ?, ?, ?, ?)');
+    foreach ($validatedItems as $line) {
+        $detailStmt->bind_param('iiids', $orderId, $line['item_id'], $line['quantity'], $line['subtotal'], $line['remarks']);
+        $detailStmt->execute();
+    }
+    $detailStmt->close();
+
+    $conn->commit();
+
     echo json_encode([
-        "status" => "success", 
-        "message" => "Order placed successfully!", 
-        "order_id" => $orderId
+        'status' => 'success',
+        'order_id' => $orderId,
+        'total_amount' => $total,
+        'order_status' => $orderStatus,
+        'payment_status' => $paymentStatus,
+        'payment_method' => $paymentMethod,
+        'created_at' => $now,
     ]);
 
-} catch (Exception $e) {
-    // Something went wrong, roll back all database changes to prevent corrupted data
-    $conn->rollback();
-    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+} catch (Throwable $e) {
+    if (isset($conn)) { @$conn->rollback(); }
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }
-
-$conn->close();
 ?>
