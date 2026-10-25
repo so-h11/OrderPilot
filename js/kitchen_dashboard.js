@@ -54,7 +54,7 @@ function renderKitchenOrders(orders) {
 
         let statusLabel = '';
         if (order.status === 'new') statusLabel = 'In Queue';
-        else if (order.status === 'in_progress') statusLabel = 'Getting Made';
+        else if (order.status === 'in_progress') statusLabel = 'Preparing';
         else if (order.status === 'completed') statusLabel = 'Completed';
 
         // Action Buttons based on status
@@ -124,7 +124,7 @@ function viewOrderDetails(orderId) {
         `;
     });
 
-    let statusLabel = order.status === 'new' ? 'In Queue' : (order.status === 'in_progress' ? 'Getting Made' : 'Completed');
+    let statusLabel = order.status === 'new' ? 'In Queue' : (order.status === 'in_progress' ? 'Preparing' : 'Completed');
 
     Swal.fire({
         title: `<span style="color: #7c3aed;">Order #${order.id} Breakdown</span>`,

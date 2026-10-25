@@ -82,7 +82,7 @@ if (file_exists('includes/admin_header.php')) {
                         <option value="All">All Statuses</option>
                         <option value="pending">Pending Approval</option>
                         <option value="new">In Queue (New)</option>
-                        <option value="in_progress">In Progress</option>
+                        <option value="in_progress">Preparing</option>
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                     </select>

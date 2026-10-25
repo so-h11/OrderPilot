@@ -155,11 +155,24 @@
 
   function renderOrderRow(order) {
     const isPaid = order.payment_status === "Paid";
-    const isUnapproved = order.kitchen_status === "pending_approval" || !isPaid;
+    const isUnapproved = order.kitchen_status === "pending_approval" || order.kitchen_status === "pending" || !isPaid;
     const time = formatTime(order.order_time);
 
-    let kitchenStatusLabel = order.kitchen_status === 'pending_approval' ? 'Pending Approval' : (order.kitchen_status === 'pending' ? 'In Queue' : order.kitchen_status);
-    let statusClass = (order.kitchen_status === 'pending_approval' || !isPaid) ? 'status-preparing' : 'status-ready';
+    // FIXED: Both 'pending' and 'pending_approval' render as "Pending Approval"
+    let kitchenStatusLabel = "Pending Approval";
+    if (order.kitchen_status === "new") {
+      kitchenStatusLabel = "In Queue";
+    }else if (order.kitchen_status === "in_progress" || order.kitchen_status === "preparing") {
+      kitchenStatusLabel = "Preparing";
+    } else if (order.kitchen_status === "completed") {
+      kitchenStatusLabel = "Completed";
+    } else if (order.kitchen_status === "cancelled") {
+      kitchenStatusLabel = "Cancelled";
+    } else if (isPaid && order.kitchen_status !== "pending" && order.kitchen_status !== "pending_approval") {
+      kitchenStatusLabel = order.kitchen_status;
+    }
+
+    let statusClass = isUnapproved ? "status-preparing" : "status-ready";
 
     let actionButtons = `
       <button type="button" class="btn btn-sm btn-outline-warning fw-bold me-1" data-action="edit-order" data-order-id="${order.order_id}" title="Edit Order Items">
@@ -516,12 +529,12 @@
     if (posCheckoutModal) posCheckoutModal.show();
   };
 
-window.submitPOSOrder = function () {
+  window.submitPOSOrder = function () {
     const btn = document.getElementById("btnPOSPlaceOrder");
     const method = document.getElementById("posPaymentMethod").value;
 
     const payload = {
-      order_type: "walkin", // Identifies this as a Cashier POS walk-in order
+      order_type: "walkin",
       payment_method: method,
       items: posCart.map((c) => ({
         item_id: c.id,

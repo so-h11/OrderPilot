@@ -1,5 +1,5 @@
 <?php
-// getorder.php
+// getorder.php & admin/getorder.php
 ob_start();
 session_start();
 header('Content-Type: application/json');
@@ -13,7 +13,7 @@ try {
         __DIR__ . '/../db_connect.php',
         __DIR__ . '/includes/db_connect.php',
         __DIR__ . '/../includes/db_connect.php',
-        __DIR__ . '/api/db_connect.php'
+        __DIR__ . '/../api/db_connect.php'
     ];
 
     $dbConnectFound = null;
@@ -43,13 +43,14 @@ try {
     if ($type === 'completed') {
         $whereClause = "WHERE o.order_status = 'completed' AND DATE(o.created_at) = CURDATE()";
     } elseif ($type === 'all') {
-        $whereClause = "WHERE DATE(o.created_at) = CURDATE()";
+        // Exclude cleared orders from live Master Order Control
+        $whereClause = "WHERE o.order_status != 'cleared'";
     } else {
-        $whereClause = "WHERE o.order_status NOT IN ('completed', 'cancelled')";
+        $whereClause = "WHERE o.order_status IN ('pending', 'pending_approval', 'new', 'in_progress', 'preparing')";
     }
 
     $sql = "SELECT o.order_id, o.created_at, o.order_status, o.payment_status, o.payment_method, o.total_amount,
-                   od.quantity AS qty, od.subtotal, od.remarks, m.item_name AS name
+                   od.item_id, od.quantity AS qty, od.subtotal, od.remarks, m.item_name AS name
             FROM orders o
             LEFT JOIN order_details od ON o.order_id = od.order_id
             LEFT JOIN menu_items m ON od.item_id = m.item_id
@@ -75,6 +76,7 @@ try {
             }
             if (!empty($row['name'])) {
                 $orders[$id]['items'][] = [
+                    'item_id' => (int) $row['item_id'],
                     'name' => $row['name'],
                     'qty' => (int) $row['qty'],
                     'subtotal' => (float) $row['subtotal'],
@@ -84,12 +86,13 @@ try {
         }
     }
 
+    // Revenue calculation retains all Paid orders regardless of cleared status for Report accuracy
     $statsQuery = "SELECT 
         COALESCE(SUM(CASE WHEN payment_status = 'Paid' AND DATE(created_at) = CURDATE() THEN total_amount ELSE 0 END), 0) AS sales,
-        COUNT(CASE WHEN order_status IN ('pending', 'pending_approval') THEN 1 END) AS pending,
-        COUNT(CASE WHEN order_status IN ('new', 'in_progress', 'preparing') THEN 1 END) AS kitchen_active,
+        COUNT(CASE WHEN order_status IN ('pending', 'pending_approval') OR payment_status = 'unpaid' THEN 1 END) AS pending,
+        COUNT(CASE WHEN order_status IN ('new', 'in_progress', 'preparing') AND payment_status = 'Paid' THEN 1 END) AS kitchen_active,
         COUNT(CASE WHEN order_status = 'completed' AND DATE(created_at) = CURDATE() THEN 1 END) AS completed
-        FROM orders WHERE DATE(created_at) = CURDATE()";
+        FROM orders WHERE DATE(created_at) = CURDATE() OR payment_status = 'unpaid'";
 
     $statsResult = $conn->query($statsQuery);
     $statsRow = $statsResult ? $statsResult->fetch_assoc() : ['sales' => 0, 'pending' => 0, 'kitchen_active' => 0, 'completed' => 0];
