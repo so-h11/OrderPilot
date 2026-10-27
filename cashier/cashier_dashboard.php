@@ -29,7 +29,7 @@ $cashierRole = htmlspecialchars($_SESSION['role'], ENT_QUOTES);
 <header class="op-header">
     <div class="op-header-row">
         <div class="op-logo">
-            <img src="../assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="180" height="50">
+            <i class="fas fa-utensils" aria-hidden="true"></i> OrderPilot
         </div>
         <div class="op-header-right">
             <span class="op-welcome">Welcome, <strong><?= $cashierName ?></strong> (<?= $cashierRole ?>)</span>

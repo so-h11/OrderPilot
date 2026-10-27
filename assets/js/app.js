@@ -76,6 +76,12 @@ function logout() {
     const homeUrl = needsParentPrefix ? '../index.html' : 'index.html';
 
     if (isCustomerPage) {
+        const searchInput = document.getElementById('menuSearchInput');
+        if (searchInput && searchInput.value) {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
         Swal.fire({
             title: 'Enter logout PIN',
             input: 'password',
@@ -84,6 +90,7 @@ function logout() {
             inputAttributes: {
                 maxlength: 4,
                 inputmode: 'numeric',
+                autocomplete: 'off',
                 autocapitalize: 'off',
                 autocorrect: 'off'
             },

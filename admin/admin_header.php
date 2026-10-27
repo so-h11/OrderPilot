@@ -5,7 +5,8 @@ $adminRole = $adminRole ?? ($_SESSION['role'] ?? 'Administrator');
 ?>
 <header class="topbar">
     <div class="brand">
-        <img src="../assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="180" height="50">
+        <i class="fas fa-utensils" aria-hidden="true"></i>
+        <span class="brand-name">OrderPilot</span>
     </div>
     <div class="topbar-right">
         <span class="welcome-text">

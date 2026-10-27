@@ -86,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             padding: 20px;
             color: #000;
         }
-        .receipt-logo { display: block; width: 170px; height: auto; margin: 0 auto 10px; }
         h2, p { text-align: center; margin: 0 0 10px 0; }
         .divider { border-bottom: 1px dashed #000; margin: 10px 0; }
         table { width: 100%; font-size: 14px; }
@@ -102,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     </style>
 </head>
 <body onload="window.print()"> <!-- Automatically opens the print dialog -->
-    <img class="receipt-logo" src="../assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder">
+    <h2><i class="fas fa-utensils" aria-hidden="true"></i> OrderPilot</h2>
     <p>Altitude Bistro</p>
     <p>Receipt #<?php echo $orderData['id']; ?><br><?php echo $orderData['date']; ?></p>
     

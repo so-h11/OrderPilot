@@ -25,7 +25,7 @@ $staffName = $_SESSION['full_name'] ?? 'Kitchen Staff';
     <!-- Header Navigation Bar -->
     <header class="topbar">
         <div class="brand">
-            <img src="assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="180" height="50">
+            <i class="fas fa-utensils" aria-hidden="true"></i> OrderPilot
         </div>
         <div class="topbar-right">
             <span class="welcome-text">Welcome, <strong><?php echo htmlspecialchars($staffName); ?></strong></span>

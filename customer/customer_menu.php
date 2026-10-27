@@ -10,7 +10,7 @@ include '../includes/header.php';
 
         <div class="menu-hero-top">
             <a href="../index.html" class="menu-brand" style="text-decoration: none;">
-                <img src="../assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="180" height="50">
+                <i class="fas fa-utensils" aria-hidden="true"></i> OrderPilot
             </a>
 
             <div class="top-right-controls">
@@ -38,7 +38,7 @@ include '../includes/header.php';
         <div class="menu-hero-search">
             <div class="search-group">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" id="menuSearchInput" class="menu-search-input" placeholder="Search menu..." />
+                <input type="text" id="menuSearchInput" name="menu_search" class="menu-search-input" placeholder="Search menu..." autocomplete="off" />
 
             </div>
         </div>
@@ -182,7 +182,7 @@ include '../includes/header.php';
                 <div class="receipt-print-area" id="receiptPrintArea">
                     <div class="receipt-header">
                         <div class="receipt-brand">
-                            <img src="../assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="160" height="45">
+                            <i class="fas fa-utensils me-2" aria-hidden="true"></i>OrderPilot
                         </div>
                         <div class="receipt-queue-label">Queue No.</div>
                         <div class="receipt-queue-number" id="receiptQueueNumber">--</div>
