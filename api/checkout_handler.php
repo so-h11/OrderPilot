@@ -41,6 +41,13 @@ try {
     $paymentMethod = trim($rawInput['payment_method'] ?? $_POST['payment_method'] ?? 'Cash');
     $items = $rawInput['items'] ?? $_POST['items'] ?? [];
 
+    if (!in_array($paymentMethod, ['Cash', 'Card', 'E-Wallet'], true)) {
+        http_response_code(400);
+        ob_end_clean();
+        echo json_encode(['status' => 'error', 'message' => 'Invalid payment method.']);
+        exit();
+    }
+
     if (empty($items)) {
         ob_end_clean();
         echo json_encode(['status' => 'error', 'message' => 'Cart is empty.']);
@@ -82,9 +89,9 @@ try {
         exit();
     }
 
-    // Create Order: Unpaid orders default to 'pending_approval'
-    $paymentStatus = ($paymentMethod === 'Walk-in Paid') ? 'Paid' : 'unpaid';
-    $orderStatus   = ($paymentStatus === 'Paid') ? 'new' : 'pending_approval';
+    // Customer checkout only records a payment preference; payment is confirmed at the counter.
+    $paymentStatus = 'unpaid';
+    $orderStatus   = 'pending_approval';
 
     $stmt = $conn->prepare("INSERT INTO orders (total_amount, payment_status, payment_method, order_status, created_at) VALUES (?, ?, ?, ?, NOW())");
     $stmt->bind_param("dsss", $totalAmount, $paymentStatus, $paymentMethod, $orderStatus);
@@ -101,11 +108,22 @@ try {
         }
         $detailStmt->close();
 
+        // Fetch created_at for the receipt
+        $tsStmt = $conn->prepare("SELECT created_at FROM orders WHERE order_id = ?");
+        $tsStmt->bind_param("i", $orderId);
+        $tsStmt->execute();
+        $tsRes = $tsStmt->get_result();
+        $createdAt = ($tsRow = $tsRes->fetch_assoc()) ? $tsRow['created_at'] : date('Y-m-d H:i:s');
+        $tsStmt->close();
+
         ob_end_clean();
         echo json_encode([
-            'status' => 'success',
-            'order_id' => $orderId,
-            'message' => 'Order submitted successfully!'
+            'status'         => 'success',
+            'order_id'       => $orderId,
+            'total_amount'   => $totalAmount,
+            'payment_method' => $paymentMethod,
+            'created_at'     => $createdAt,
+            'message'        => 'Order submitted successfully!'
         ]);
     } else {
         ob_end_clean();

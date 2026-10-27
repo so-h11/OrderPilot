@@ -3,6 +3,12 @@
 session_start();
 header('Content-Type: application/json');
 
+if (($_SESSION['role'] ?? '') !== 'Administrator') {
+    http_response_code(403);
+    echo json_encode(['status' => 'error', 'message' => 'Administrator access is required.']);
+    exit();
+}
+
 $dbConnectCandidates = [
     __DIR__ . '/db_connect.php',
     __DIR__ . '/../db_connect.php',
@@ -81,6 +87,11 @@ switch ($action) {
             echo json_encode(['status' => 'error', 'message' => 'All required fields must be filled.']);
             exit();
         }
+        if (!in_array($role, ['Administrator', 'Cashier', 'Kitchen Staff', 'Customer'], true) ||
+            !in_array($status, ['Active', 'Inactive'], true)) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid role or account status.']);
+            exit();
+        }
 
         // Check duplicate username
         $checkStmt = $conn->prepare("SELECT user_id FROM users WHERE username = ?");
@@ -120,6 +131,11 @@ switch ($action) {
 
         if ($userId <= 0 || empty($fullName) || empty($username) || empty($role)) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid data provided for update.']);
+            exit();
+        }
+        if (!in_array($role, ['Administrator', 'Cashier', 'Kitchen Staff', 'Customer'], true) ||
+            !in_array($status, ['Active', 'Inactive'], true)) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid role or account status.']);
             exit();
         }
 

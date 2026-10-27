@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="56" viewBox="0 0 200 56" role="img" aria-labelledby="title">
+  <title id="title">OrderPilot logo placeholder</title>
+  <rect x="1" y="1" width="198" height="54" rx="14" fill="#fff" stroke="#dedcf7" stroke-width="2"/>
+  <rect x="8" y="8" width="40" height="40" rx="11" fill="#6c5ce7"/>
+  <path d="M21 17v11m7-11v11m-10-5h13m-7 5v10m9-21v21" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"/>
+  <text x="58" y="27" fill="#27234a" font-family="Arial, sans-serif" font-size="18" font-weight="700">OrderPilot</text>
+  <text x="59" y="42" fill="#77718e" font-family="Arial, sans-serif" font-size="8" font-weight="600" letter-spacing="1.5">LOGO PLACEHOLDER</text>
+</svg>

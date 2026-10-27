@@ -69,7 +69,7 @@ elseif ($method === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
 
     if (isset($data['action']) && $data['action'] === 'clear_all_completed') {
-        $stmt = $conn->prepare("UPDATE orders SET order_status = 'cancelled', updated_at = NOW() WHERE order_status = 'completed' AND DATE(created_at) = CURDATE()");
+        $stmt = $conn->prepare("UPDATE orders SET order_status = 'cleared', updated_at = NOW() WHERE order_status = 'completed' AND DATE(created_at) = CURDATE()");
         if ($stmt->execute()) {
             echo json_encode(["status" => "success", "message" => "All completed orders cleared!"]);
         } else {
@@ -94,7 +94,11 @@ elseif ($method === 'POST') {
         exit();
     }
 
-    $stmt = $conn->prepare("UPDATE orders SET order_status = ?, updated_at = NOW() WHERE order_id = ?");
+    if ($newStatus === 'cancelled') {
+        $stmt = $conn->prepare("UPDATE orders SET order_status = ?, payment_status = 'Cancelled', updated_at = NOW() WHERE order_id = ?");
+    } else {
+        $stmt = $conn->prepare("UPDATE orders SET order_status = ?, updated_at = NOW() WHERE order_id = ?");
+    }
     $stmt->bind_param("si", $newStatus, $orderId);
     
     if ($stmt->execute()) {

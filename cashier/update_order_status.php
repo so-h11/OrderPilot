@@ -34,7 +34,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 // Bulk Clear All Completed Orders
 if (isset($input['action']) && $input['action'] === 'clear_all_completed') {
-    $stmt = $conn->prepare("UPDATE orders SET order_status = 'cancelled', updated_at = NOW() WHERE order_status = 'completed' AND DATE(created_at) = CURDATE()");
+    $stmt = $conn->prepare("UPDATE orders SET order_status = 'cleared', updated_at = NOW() WHERE order_status = 'completed' AND DATE(created_at) = CURDATE()");
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'status' => 'success', 'message' => 'All completed orders cleared!']);
     } else {
@@ -56,7 +56,12 @@ if ($orderId <= 0 || !in_array($status, $allowedStatuses, true)) {
     exit();
 }
 
-$sql = "UPDATE orders SET order_status = '$status', updated_at = NOW() WHERE order_id = $orderId";
+// When cancelling, also revert payment_status so cancelled orders are excluded from revenue reports
+if ($status === 'cancelled') {
+    $sql = "UPDATE orders SET order_status = 'cancelled', payment_status = 'Cancelled', updated_at = NOW() WHERE order_id = $orderId";
+} else {
+    $sql = "UPDATE orders SET order_status = '$status', updated_at = NOW() WHERE order_id = $orderId";
+}
 
 if ($conn->query($sql) === TRUE) {
     echo json_encode(['success' => true, 'status' => 'success', 'message' => 'Order status updated']);

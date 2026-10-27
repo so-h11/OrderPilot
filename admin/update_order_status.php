@@ -109,7 +109,10 @@ try {
     }
 
     // 4. KITCHEN SYNC / STATUS UPDATE LOGIC
-    if (in_array($kitchenStatus, ['new', 'in_progress', 'preparing', 'completed'])) {
+    if ($kitchenStatus === 'cancelled') {
+        $stmt = $conn->prepare("UPDATE orders SET order_status = ?, payment_status = 'Cancelled' WHERE order_id = ?");
+        $stmt->bind_param("si", $kitchenStatus, $orderId);
+    } elseif (in_array($kitchenStatus, ['new', 'in_progress', 'preparing', 'completed'])) {
         $stmt = $conn->prepare("UPDATE orders SET order_status = ?, payment_status = 'Paid' WHERE order_id = ?");
         $stmt->bind_param("si", $kitchenStatus, $orderId);
     } else {

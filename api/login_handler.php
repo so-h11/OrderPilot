@@ -11,7 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $role = isset($_POST['role']) && trim($_POST['role']) !== '' ? $conn->real_escape_string($_POST['role']) : 'Customer';
 
     // Query the database for the user by username and role
-    $sql = "SELECT user_id, full_name, password_hash FROM users WHERE username = '$username' AND role = '$role'";
+    $sql = "SELECT user_id, full_name, password_hash FROM users
+            WHERE username = '$username' AND role = '$role'
+              AND (status IS NULL OR status = 'Active')";
     $result = $conn->query($sql);
 
     if ($result && $result->num_rows > 0) {

@@ -80,7 +80,7 @@ function logout() {
             title: 'Enter logout PIN',
             input: 'password',
             inputLabel: '4-digit PIN',
-            inputPlaceholder: '1234',
+            inputPlaceholder: '0000',
             inputAttributes: {
                 maxlength: 4,
                 inputmode: 'numeric',
@@ -95,18 +95,32 @@ function logout() {
             preConfirm: (pin) => {
                 if (!pin) {
                     Swal.showValidationMessage('Please enter the 4-digit PIN');
-                } else if (pin !== '1234') {
+                } else if (pin !== '0000') {
                     Swal.showValidationMessage('Incorrect PIN');
                 }
                 return pin;
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(logoutUrl, { credentials: 'same-origin' })
-                    .then(response => response.json().catch(() => ({})))
-                    .catch(() => ({}))
-                    .finally(() => {
-                        window.location.replace(homeUrl);
+                fetch(logoutUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: result.value })
+                })
+                    .then(response => response.json().then(data => {
+                        if (!response.ok || data.status !== 'success') {
+                            throw new Error(data.message || 'Could not log out.');
+                        }
+                    }))
+                    .then(() => window.location.replace(homeUrl))
+                    .catch(error => {
+                        console.error('Logout error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Logout failed',
+                            text: error.message || 'Could not end your session. Please try again.'
+                        });
                     });
             }
         });
@@ -123,11 +137,23 @@ function logout() {
         confirmButtonText: 'Yes, Log Out'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(logoutUrl, { credentials: 'same-origin' })
-                .then(response => response.json().catch(() => ({})))
-                .catch(() => ({}))
-                .finally(() => {
-                    window.location.replace(homeUrl);
+            fetch(logoutUrl, {
+                method: 'POST',
+                credentials: 'same-origin'
+            })
+                .then(response => response.json().then(data => {
+                    if (!response.ok || data.status !== 'success') {
+                        throw new Error(data.message || 'Could not log out.');
+                    }
+                }))
+                .then(() => window.location.replace(homeUrl))
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Logout failed',
+                        text: error.message || 'Could not end your session. Please try again.'
+                    });
                 });
         }
     });

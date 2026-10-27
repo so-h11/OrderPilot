@@ -31,17 +31,18 @@ foreach ($menuCategories as $category) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OrderPilot - Menu Management</title>
+<link rel="stylesheet" href="../css/admin.css?v=<?php echo @filemtime(__DIR__ . '/../css/admin.css') ?: time(); ?>">
 <link rel="stylesheet" href="../css/admin_menu.css?v=<?php echo @filemtime(__DIR__ . '/../css/admin_menu.css') ?: time(); ?>">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../assets/js/app.js"></script>
+<script src="../assets/js/app.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/app.js') ?: time(); ?>"></script>
 </head>
 <body>
 
-<?php include 'admin_header.php'; ?>
+<?php include __DIR__ . '/admin_header.php'; ?>
 
 <div class="app-body">
 
-    <?php include 'admin_sidebar.php'; ?>
+    <?php include __DIR__ . '/admin_sidebar.php'; ?>
 
     <main class="main-content">
 

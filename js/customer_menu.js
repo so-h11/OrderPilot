@@ -327,11 +327,35 @@ function placeOrder() {
                 return;
             }
 
+            const rawServerTotal = data.total_amount ?? data.total;
+            const serverTotal = rawServerTotal === null || rawServerTotal === ''
+                ? NaN
+                : Number(rawServerTotal);
+            const cartTotal = cart.reduce((total, item) => {
+                const price = Number(item.price);
+                const quantity = Number(item.qty);
+                return total + (Number.isFinite(price) && Number.isFinite(quantity) ? price * quantity : NaN);
+            }, 0);
+            const usesEstimatedTotal = !Number.isFinite(serverTotal) || serverTotal < 0;
+            const totalAmount = usesEstimatedTotal ? cartTotal : serverTotal;
+            if (!Number.isFinite(totalAmount) || totalAmount < 0) {
+                checkoutModal.hide();
+                cart = [];
+                updateCartUI();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Order submitted, total unavailable',
+                    text: 'The server did not return a valid total and the cart total could not be calculated. Please confirm the amount with the cashier. Do not place the order again.'
+                });
+                return;
+            }
+
             // Snapshot the cart lines now, before we clear it, so the
             // receipt still has names/prices to display.
             lastOrderData = {
                 orderId: data.order_id,
-                total: data.total_amount,
+                total: totalAmount,
+                totalIsEstimate: usesEstimatedTotal,
                 paymentMethod: data.payment_method,
                 createdAt: data.created_at,
                 lines: cart.map(cItem => ({
@@ -365,7 +389,7 @@ function placeOrder() {
 function renderReceipt(order) {
     document.getElementById('receiptQueueNumber').innerText = '#' + order.orderId;
 
-    const dateStr = order.createdAt ? new Date(order.createdAt.replace(' ', 'T')).toLocaleString() : new Date().toLocaleString();
+    const dateStr = order.createdAt ? new Date(order.createdAt.replace(' ', 'T') + '+08:00').toLocaleString('en-MY', {timeZone: 'Asia/Kuala_Lumpur'}) : new Date().toLocaleString('en-MY', {timeZone: 'Asia/Kuala_Lumpur'});
     document.getElementById('receiptMeta').innerText = `Order #${order.orderId} \u2022 ${dateStr}`;
 
     const itemsList = document.getElementById('receiptItemsList');
@@ -384,7 +408,10 @@ function renderReceipt(order) {
         `;
     });
 
-    document.getElementById('receiptTotalAmount').innerText = parseFloat(order.total).toFixed(2);
+    const total = Number(order.total);
+    document.getElementById('receiptTotalLabel').innerText = order.totalIsEstimate ? 'Estimated total' : 'Total';
+    document.getElementById('receiptTotalAmount').innerText =
+        Number.isFinite(total) && total >= 0 ? total.toFixed(2) : 'Unavailable';
     document.getElementById('receiptPaymentRow').innerText = `Payment: ${order.paymentMethod} \u2022 pay at counter`;
 }
 

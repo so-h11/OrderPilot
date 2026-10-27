@@ -29,16 +29,20 @@ $todaysSales     = 0.00;
 $pendingOrders   = 0;
 $completedOrders = 0;
 $totalStaff      = 0;
+$totalCustomers  = 0;
 $staffList       = [];
+$customerList    = [];
 $menuList        = [];
 $salesOverview   = [];
 
 if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
 
-    // 1. Today's Total Revenue (All 'Paid' orders today, even if cleared from cashier view)
+    // 1. Today's Total Revenue (excluding cancelled orders)
     $salesSql = "SELECT COALESCE(SUM(total_amount), 0) AS total 
                  FROM orders 
-                 WHERE payment_status = 'Paid' AND DATE(created_at) = CURDATE()";
+                 WHERE payment_status = 'Paid'
+                   AND LOWER(COALESCE(order_status, '')) <> 'cancelled'
+                   AND DATE(created_at) = CURDATE()";
     $salesRes = $conn->query($salesSql);
     if ($salesRes) {
         $todaysSales = (float) ($salesRes->fetch_assoc()['total'] ?? 0);
@@ -65,10 +69,15 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
     // 4. Total Active Staff Accounts
     $staffCountSql = "SELECT COUNT(*) AS total 
                       FROM users 
-                      WHERE role IN ('Administrator', 'Cashier', 'Kitchen Staff') AND (status IS NULL OR status = 'Active')";
+                      WHERE role IN ('Administrator', 'Cashier', 'Kitchen Staff', 'Customer') AND (status IS NULL OR status = 'Active')";
     $staffCountRes = $conn->query($staffCountSql);
     if ($staffCountRes) {
         $totalStaff = (int) ($staffCountRes->fetch_assoc()['total'] ?? 0);
+    }
+
+    $customerCountRes = $conn->query("SELECT COUNT(*) AS total FROM users WHERE role = 'Customer' AND (status IS NULL OR status = 'Active')");
+    if ($customerCountRes) {
+        $totalCustomers = (int) ($customerCountRes->fetch_assoc()['total'] ?? 0);
     }
 
     // 5. Staff Accounts Preview (Latest 5)
@@ -82,6 +91,17 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
             $staffList[] = [
                 'name'   => $row['full_name'] ?: $row['username'],
                 'role'   => $row['role'],
+                'status' => $row['status'] ?? 'Active'
+            ];
+        }
+    }
+
+    $customerRes = $conn->query("SELECT full_name, username, status FROM users WHERE role = 'Customer' ORDER BY user_id DESC LIMIT 5");
+    if ($customerRes && $customerRes->num_rows > 0) {
+        while ($row = $customerRes->fetch_assoc()) {
+            $customerList[] = [
+                'name' => $row['full_name'] ?: $row['username'],
+                'username' => $row['username'],
                 'status' => $row['status'] ?? 'Active'
             ];
         }
@@ -110,7 +130,9 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
 
         $chartSql = "SELECT COALESCE(SUM(total_amount), 0) AS daily_total 
                      FROM orders 
-                     WHERE payment_status = 'Paid' AND DATE(created_at) = '$date'";
+                     WHERE payment_status = 'Paid'
+                       AND LOWER(COALESCE(order_status, '')) <> 'cancelled'
+                       AND DATE(created_at) = '$date'";
         $chartRes = $conn->query($chartSql);
         $val = 0.00;
         if ($chartRes) {
@@ -137,24 +159,29 @@ if ($maxSalesValue <= 0) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OrderPilot - Admin Dashboard</title>
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Custom Admin CSS -->
 <link rel="stylesheet" href="../css/admin.css?v=<?php echo time(); ?>">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../assets/js/app.js"></script>
+<script src="../assets/js/app.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/app.js') ?: time(); ?>"></script>
 </head>
 <body>
 
-<?php include 'admin_header.php'; ?>
+<?php include __DIR__ . '/admin_header.php'; ?>
 
 <div class="app-body">
 
-    <?php include 'admin_sidebar.php'; ?>
+    <?php include __DIR__ . '/admin_sidebar.php'; ?>
 
     <main class="main-content">
 
         <h1 class="page-title">Admin Dashboard</h1>
 
         <!-- Real-Time Metrics Row -->
-        <section class="stats-row">
+        <section class="stats-row dashboard-stats-row">
             <div class="stat-card stat-sales">
                 <span class="stat-label">TODAY'S SALES</span>
                 <span class="stat-value">RM <?php echo number_format($todaysSales, 2); ?></span>
@@ -168,8 +195,12 @@ if ($maxSalesValue <= 0) {
                 <span class="stat-value"><?php echo $completedOrders; ?></span>
             </div>
             <div class="stat-card stat-staff">
-                <span class="stat-label">TOTAL STAFF</span>
+                <span class="stat-label">TOTAL ACCOUNTS</span>
                 <span class="stat-value"><?php echo $totalStaff; ?></span>
+            </div>
+            <div class="stat-card stat-completed">
+                <span class="stat-label">CUSTOMER ACCOUNTS</span>
+                <span class="stat-value"><?php echo $totalCustomers; ?></span>
             </div>
         </section>
 
@@ -178,7 +209,7 @@ if ($maxSalesValue <= 0) {
             <!-- Staff Management Overview -->
             <div class="panel">
                 <div class="panel-header">
-                    <h2>Staff Management</h2>
+                    <h2>Staff Accounts</h2>
                     <a href="admin_staff.php" class="btn btn-primary">+ Manage Staff</a>
                 </div>
                 <table class="panel-table">
@@ -204,6 +235,39 @@ if ($maxSalesValue <= 0) {
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr><td colspan="3" class="cell-subtitle" style="text-align: center; padding: 20px;">No staff members found.</td></tr>
+                    <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Customer Accounts</h2>
+                    <a href="admin_staff.php" class="btn btn-primary">+ Manage Accounts</a>
+                </div>
+                <table class="panel-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th class="actions-col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php if (!empty($customerList)): ?>
+                        <?php foreach ($customerList as $customer): ?>
+                            <tr>
+                                <td class="cell-name"><?php echo htmlspecialchars($customer['name']); ?></td>
+                                <td><?php echo htmlspecialchars($customer['username']); ?></td>
+                                <td class="actions-col">
+                                    <span class="status-badge <?php echo ($customer['status'] === 'Active') ? 'status-available' : 'status-unavailable'; ?>">
+                                        <?php echo htmlspecialchars($customer['status']); ?>
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr><td colspan="3" class="cell-subtitle" style="text-align: center; padding: 20px;">No customer accounts found.</td></tr>
                     <?php endif; ?>
                     </tbody>
                 </table>
@@ -278,6 +342,8 @@ if ($maxSalesValue <= 0) {
     </main>
 </div>
 
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/admin.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

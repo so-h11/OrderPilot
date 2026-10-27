@@ -10,7 +10,7 @@ include '../includes/header.php';
 
         <div class="menu-hero-top">
             <a href="../index.html" class="menu-brand" style="text-decoration: none;">
-                <i class="fas fa-utensils"></i> OrderPilot
+                <img src="../assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="180" height="50">
             </a>
 
             <div class="top-right-controls">
@@ -76,7 +76,7 @@ include '../includes/header.php';
 
                 <div class="cart-panel-footer">
                     <div class="cart-total-row">
-                        <span>Total</span>
+                        <span id="receiptTotalLabel">Total</span>
                         <span class="cart-total-amount">RM <span id="cartTotal">0.00</span></span>
                     </div>
                     <button class="btn checkout-btn w-100" id="checkoutBtn" onclick="checkout()" disabled>
@@ -181,7 +181,9 @@ include '../includes/header.php';
 
                 <div class="receipt-print-area" id="receiptPrintArea">
                     <div class="receipt-header">
-                        <div class="receipt-brand">OrderPilot</div>
+                        <div class="receipt-brand">
+                            <img src="../assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="160" height="45">
+                        </div>
                         <div class="receipt-queue-label">Queue No.</div>
                         <div class="receipt-queue-number" id="receiptQueueNumber">--</div>
                         <div class="receipt-meta" id="receiptMeta"></div>

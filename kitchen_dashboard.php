@@ -25,7 +25,7 @@ $staffName = $_SESSION['full_name'] ?? 'Kitchen Staff';
     <!-- Header Navigation Bar -->
     <header class="topbar">
         <div class="brand">
-            <i class="fas fa-utensils"></i> OrderPilot
+            <img src="assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="180" height="50">
         </div>
         <div class="topbar-right">
             <span class="welcome-text">Welcome, <strong><?php echo htmlspecialchars($staffName); ?></strong></span>
@@ -89,7 +89,7 @@ $staffName = $_SESSION['full_name'] ?? 'Kitchen Staff';
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <!-- Global JS -->
-    <script src="assets/js/app.js"></script>
+    <script src="assets/js/app.js?v=<?php echo @filemtime(__DIR__ . '/assets/js/app.js') ?: time(); ?>"></script>
     
     <!-- Kitchen Logic JS with Cache Buster -->
     <script src="js/kitchen_dashboard.js?v=<?php echo time(); ?>"></script>

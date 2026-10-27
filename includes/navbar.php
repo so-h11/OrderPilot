@@ -1,6 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="#"><i class="fas fa-utensils"></i> OrderPilot</a>
+        <a class="navbar-brand fw-bold" href="#">
+            <img src="<?= htmlspecialchars(($assetsPrefix ?? '') . 'assets/images/orderpilot-logo-placeholder.svg') ?>" alt="OrderPilot logo placeholder" width="180" height="50">
+        </a>
         
         <?php if(isset($_SESSION['user_id'])): ?>
         <div class="d-flex align-items-center">

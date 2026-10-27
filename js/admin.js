@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = filtered.map(order => {
             const isPaid = (order.payment_status === 'Paid');
             const isPendingStatus = (order.kitchen_status === 'pending' || order.kitchen_status === 'pending_approval');
-            const time = order.order_time ? new Date(order.order_time.replace(' ', 'T')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+            const time = order.order_time ? new Date(order.order_time.replace(' ', 'T') + '+08:00').toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kuala_Lumpur' }) : '-';
 
             return `
                 <tr>

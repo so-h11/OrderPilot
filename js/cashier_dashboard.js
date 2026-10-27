@@ -623,9 +623,9 @@
   }
 
   function formatTime(dateString) {
-    const d = new Date(dateString);
+    const d = new Date(typeof dateString === 'string' ? dateString.replace(' ', 'T') + '+08:00' : dateString);
     if (isNaN(d)) return dateString;
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleTimeString("en-MY", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" });
   }
 
   function openOrderModal(orderId, isCompleted = false) {

@@ -4,9 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// If this page is loaded from a subfolder such as /cashier/ or /admin/, adjust asset paths.
+// If this page is loaded from a subfolder, adjust asset paths.
 $assetsPrefix = '';
-if (preg_match('#/(cashier|admin)/#', $_SERVER['REQUEST_URI'])) {
+if (preg_match('#/(cashier|admin|customer)/#', $_SERVER['REQUEST_URI'])) {
     $assetsPrefix = '../';
 }
 ?>
@@ -21,6 +21,6 @@ if (preg_match('#/(cashier|admin)/#', $_SERVER['REQUEST_URI'])) {
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?= $assetsPrefix ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= $assetsPrefix ?>css/styles.css">
 </head>
 <body class="bg-light">

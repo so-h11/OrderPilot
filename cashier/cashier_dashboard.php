@@ -29,7 +29,7 @@ $cashierRole = htmlspecialchars($_SESSION['role'], ENT_QUOTES);
 <header class="op-header">
     <div class="op-header-row">
         <div class="op-logo">
-            <i class="fas fa-utensils"></i> OrderPilot
+            <img src="../assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="180" height="50">
         </div>
         <div class="op-header-right">
             <span class="op-welcome">Welcome, <strong><?= $cashierName ?></strong> (<?= $cashierRole ?>)</span>
@@ -300,7 +300,7 @@ $cashierRole = htmlspecialchars($_SESSION['role'], ENT_QUOTES);
             <div class="modal-header bg-light border-0 d-flex justify-content-between align-items-center">
                 <h5 class="modal-title fw-bold text-dark"><i class="fas fa-check-circle text-success me-2"></i>Completed Orders History</h5>
                 <div>
-                    <button type="button" class="btn type="button" class="btn btn-sm btn-outline-danger me-2 fw-bold" id="btnClearAllCompleted">
+                    <button type="button" class="btn btn-sm btn-outline-danger me-2 fw-bold" id="btnClearAllCompleted">
                         <i class="fas fa-trash-can me-1"></i> Clear All Completed
                     </button>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -331,19 +331,13 @@ $cashierRole = htmlspecialchars($_SESSION['role'], ENT_QUOTES);
     </div>
 </div>
 
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Bootstrap 5 JS Bundle (Includes Popper) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Logout Helper Function -->
-<script>
-function logout() {
-    fetch('../api/logout_handler.php')
-        .then(() => window.location.href = '../index.html')
-        .catch(() => window.location.href = '../index.html');
-}
-</script>
-
 <!-- Cashier Dashboard Logic JS -->
+<script src="../assets/js/app.js?v=<?php echo @filemtime(__DIR__ . '/../assets/js/app.js') ?: time(); ?>"></script>
 <script src="../js/cashier_dashboard.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

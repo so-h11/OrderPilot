@@ -148,6 +148,10 @@ body {
     margin-bottom: 28px;
 }
 
+.dashboard-stats-row {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .stat-card {
     border-radius: 12px;
     padding: 22px 22px;

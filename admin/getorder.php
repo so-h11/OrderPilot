@@ -88,7 +88,7 @@ try {
 
     // Revenue calculation retains all Paid orders regardless of cleared status for Report accuracy
     $statsQuery = "SELECT 
-        COALESCE(SUM(CASE WHEN payment_status = 'Paid' AND DATE(created_at) = CURDATE() THEN total_amount ELSE 0 END), 0) AS sales,
+        COALESCE(SUM(CASE WHEN payment_status = 'Paid' AND LOWER(COALESCE(order_status, '')) <> 'cancelled' AND DATE(created_at) = CURDATE() THEN total_amount ELSE 0 END), 0) AS sales,
         COUNT(CASE WHEN order_status IN ('pending', 'pending_approval') OR payment_status = 'unpaid' THEN 1 END) AS pending,
         COUNT(CASE WHEN order_status IN ('new', 'in_progress', 'preparing') AND payment_status = 'Paid' THEN 1 END) AS kitchen_active,
         COUNT(CASE WHEN order_status = 'completed' AND DATE(created_at) = CURDATE() THEN 1 END) AS completed

@@ -1,12 +1,11 @@
 <?php
 // Expects $adminName to be set by the including page (falls back below).
-$adminName = $adminName ?? ($_SESSION['staff_name'] ?? 'System Admin');
-$adminRole = $adminRole ?? ($_SESSION['role_label'] ?? 'Administrator');
+$adminName = $adminName ?? ($_SESSION['full_name'] ?? $_SESSION['username'] ?? 'System Admin');
+$adminRole = $adminRole ?? ($_SESSION['role'] ?? 'Administrator');
 ?>
 <header class="topbar">
     <div class="brand">
-        <span class="brand-icon">🍴</span>
-        <span class="brand-name">OrderPilot</span>
+        <img src="../assets/images/orderpilot-logo-placeholder.svg" alt="OrderPilot logo placeholder" width="180" height="50">
     </div>
     <div class="topbar-right">
         <span class="welcome-text">
