@@ -76,10 +76,8 @@ function logout() {
     const homeUrl = needsParentPrefix ? '../index.html' : 'index.html';
 
     if (isCustomerPage) {
-        const searchInput = document.getElementById('menuSearchInput');
-        if (searchInput && searchInput.value) {
-            searchInput.value = '';
-            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        if (typeof window.clearCustomerMenuSearch === 'function') {
+            window.clearCustomerMenuSearch();
         }
 
         Swal.fire({
@@ -93,6 +91,11 @@ function logout() {
                 autocomplete: 'off',
                 autocapitalize: 'off',
                 autocorrect: 'off'
+            },
+            didOpen: () => {
+                if (typeof window.clearCustomerMenuSearch === 'function') {
+                    window.clearCustomerMenuSearch();
+                }
             },
             showCancelButton: true,
             confirmButtonText: 'Log Out',

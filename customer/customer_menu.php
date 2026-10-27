@@ -15,7 +15,7 @@ include '../includes/header.php';
 
             <div class="top-right-controls">
                 <div class="logout-container">
-                    <button type="button" class="btn btn-logout" onclick="logout()">
+                    <button type="button" class="btn btn-logout" onclick="if (typeof clearCustomerMenuSearch === 'function') { clearCustomerMenuSearch(); } else { const search = document.getElementById('menuSearchInput'); if (search) search.value = ''; const allCategory = document.querySelector('#categoryFilters .filter-pill'); if (allCategory) allCategory.click(); } logout()">
                         <i class="fas fa-sign-out-alt me-1"></i> Log Out
                     </button>
                 </div>
@@ -38,7 +38,7 @@ include '../includes/header.php';
         <div class="menu-hero-search">
             <div class="search-group">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" id="menuSearchInput" name="menu_search" class="menu-search-input" placeholder="Search menu..." autocomplete="off" />
+                <input type="text" id="menuSearchInput" class="menu-search-input" placeholder="Search menu..." autocomplete="off" />
 
             </div>
         </div>

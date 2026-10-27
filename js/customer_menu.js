@@ -53,8 +53,10 @@ function fetchMenu() {
 // 2. Render the menu grid dynamically
 function renderMenu() {
     const grid = document.getElementById('menuGrid');
+    const searchInput = document.getElementById('menuSearchInput');
+    if (!grid || !searchInput) return;
     grid.innerHTML = '';
-    const searchTerm = document.getElementById('menuSearchInput').value.toLowerCase();
+    const searchTerm = searchInput.value.trim().toLowerCase();
 
     // Filter logic (Category & Search)
     const filtered = menuItems.filter(item => {
@@ -92,6 +94,20 @@ function renderMenu() {
             </div>
         `;
     });
+}
+
+function clearCustomerMenuSearch() {
+    const searchInput = document.getElementById('menuSearchInput');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.blur();
+    }
+
+    currentCategory = 'All';
+    document.querySelectorAll('#categoryFilters .filter-pill').forEach((button, index) => {
+        button.classList.toggle('active', index === 0);
+    });
+    renderMenu();
 }
 
 // 3. Open the Item Details Modal
