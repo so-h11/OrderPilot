@@ -54,7 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Strictly exclude cleared orders
             if (o.kitchen_status === 'cleared') return false;
 
-            const isPendingStatus = (o.kitchen_status === 'pending' || o.kitchen_status === 'pending_approval' || o.payment_status === 'unpaid');
+            const isCancelled = String(o.kitchen_status || '').toLowerCase() === 'cancelled';
+            const isPendingStatus = !isCancelled && (
+                o.kitchen_status === 'pending' ||
+                o.kitchen_status === 'pending_approval' ||
+                String(o.payment_status || '').toLowerCase() === 'unpaid'
+            );
             const matchesFilter = (filter === 'All') ||
                 (filter === 'pending' && isPendingStatus) ||
                 (o.kitchen_status === filter);
@@ -69,40 +74,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         tbody.innerHTML = filtered.map(order => {
-            const isPaid = (order.payment_status === 'Paid');
+            const isCancelled = String(order.kitchen_status || '').toLowerCase() === 'cancelled';
+            const isPaid = String(order.payment_status || '').toLowerCase() === 'paid';
             const isPendingStatus = (order.kitchen_status === 'pending' || order.kitchen_status === 'pending_approval');
             const time = order.order_time ? new Date(order.order_time.replace(' ', 'T') + '+08:00').toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kuala_Lumpur' }) : '-';
+            const kitchenStatus = isCancelled
+                ? '<span class="badge bg-danger">Cancelled</span>'
+                : `
+                    <select class="form-select form-select-sm fw-bold" style="width: 140px;" onchange="window.updateAdminKitchenStatus(${order.order_id}, this.value)">
+                        ${isPendingStatus ? '<option value="" disabled selected>Pending Approval</option>' : ''}
+                        <option value="new" ${order.kitchen_status === 'new' ? 'selected' : ''}>In Queue</option>
+                        <option value="in_progress" ${(order.kitchen_status === 'in_progress' || order.kitchen_status === 'preparing') ? 'selected' : ''}>Preparing</option>
+                        <option value="completed" ${order.kitchen_status === 'completed' ? 'selected' : ''}>Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>`;
 
             return `
                 <tr>
                     <td><strong>#${order.order_id}</strong></td>
                     <td>${time}</td>
+                    <td>${kitchenStatus}</td>
                     <td>
-                        <select class="form-select form-select-sm fw-bold" style="width: 140px;" onchange="window.updateAdminKitchenStatus(${order.order_id}, this.value)">
-                            ${isPendingStatus ? '<option value="" disabled selected>Pending Approval</option>' : ''}
-                            <option value="new" ${order.kitchen_status === 'new' ? 'selected' : ''}>In Queue</option>
-                            <option value="in_progress" ${(order.kitchen_status === 'in_progress' || order.kitchen_status === 'preparing') ? 'selected' : ''}>Preparing</option>
-                            <option value="completed" ${order.kitchen_status === 'completed' ? 'selected' : ''}>Completed</option>
-                            <option value="cancelled" ${order.kitchen_status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                        </select>
-                    </td>
-                    <td>
-                        <span class="status-badge ${isPaid ? 'status-available' : 'status-unavailable'}">
-                            ${escapeHtml(order.payment_status)} (${escapeHtml(order.payment_method)})
+                        <span class="status-badge ${isCancelled ? 'bg-danger text-white' : (isPaid ? 'status-available' : 'status-unavailable')}">
+                            ${escapeHtml(isCancelled ? 'Cancelled' : order.payment_status)} (${escapeHtml(order.payment_method)})
                         </span>
                     </td>
                     <td><strong>RM ${Number(order.total_amount).toFixed(2)}</strong></td>
                     <td class="actions-col">
-                        ${!isPaid ? `
+                        ${!isPaid && !isCancelled ? `
                             <button class="btn btn-sm btn-success fw-bold me-1" onclick="window.approveAdminOrder(${order.order_id})" title="Approve Payment">
                                 <i class="fas fa-check me-1"></i> Approve
                             </button>` : ''}
                         <button class="btn btn-sm btn-outline-primary fw-bold me-1" onclick="window.viewAdminOrderDetails(${order.order_id})" title="View Details">
                             <i class="fas fa-receipt"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-warning fw-bold me-1" onclick="window.revertAdminOrder(${order.order_id})" title="Undo / Revert to Pending">
+                        ${!isCancelled ? `<button class="btn btn-sm btn-outline-warning fw-bold me-1" onclick="window.revertAdminOrder(${order.order_id})" title="Undo / Revert to Pending">
                             <i class="fas fa-rotate-left"></i>
-                        </button>
+                        </button>` : ''}
                         <button class="btn btn-sm btn-outline-danger fw-bold" onclick="window.clearSingleAdminOrder(${order.order_id})" title="Clear Order">
                             <i class="fas fa-trash-can"></i>
                         </button>
@@ -215,6 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.approveAdminOrder = function (orderId) {
         const order = adminOrdersCache.find(o => o.order_id == orderId);
+        if (!order || String(order.kitchen_status || '').toLowerCase() === 'cancelled') {
+            return;
+        }
         const method = order ? order.payment_method : 'Cash';
 
         const endpoints = [

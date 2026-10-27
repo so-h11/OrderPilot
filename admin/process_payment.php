@@ -56,15 +56,15 @@ try {
                                     WHEN order_status IN ('pending', 'pending_approval') THEN 'new' 
                                     ELSE order_status 
                                 END 
-                            WHERE order_id = ?");
+                            WHERE order_id = ? AND LOWER(COALESCE(order_status, '')) <> 'cancelled'");
     $stmt->bind_param("si", $paymentMethod, $orderId);
 
-    if ($stmt->execute()) {
+    if ($stmt->execute() && $stmt->affected_rows > 0) {
         ob_end_clean();
         echo json_encode(['success' => true, 'message' => 'Payment approved successfully. Order sent to kitchen!']);
     } else {
         ob_end_clean();
-        echo json_encode(['success' => false, 'message' => 'Database error: ' . $conn->error]);
+        echo json_encode(['success' => false, 'message' => 'Payment could not be approved. The order may already be cancelled or paid.']);
     }
 
     $stmt->close();

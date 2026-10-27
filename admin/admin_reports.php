@@ -149,6 +149,27 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
         }
     }
 }
+
+$dailyCsvRows = [];
+foreach ($dailyBreakdown as $row) {
+    $dailyCsvRows[] = [
+        date('d M Y', strtotime($row['sale_date'])),
+        (int) $row['order_count'],
+        (float) $row['cash_total'],
+        (float) $row['digital_total'],
+        (float) $row['daily_total']
+    ];
+}
+
+$topItemsCsvRows = [];
+foreach ($topItems as $item) {
+    $topItemsCsvRows[] = [
+        $item['item_name'],
+        $item['category_name'],
+        (int) $item['qty_sold'],
+        (float) $item['item_revenue']
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -339,31 +360,44 @@ function handlePresetChange(val) {
 }
 
 function exportReportCSV() {
-    let csv = [];
-    csv.push(["Report Date Range", "<?php echo $startDate; ?> to <?php echo $endDate; ?>"]);
-    csv.push(["Total Revenue", "RM <?php echo number_format($totalRevenue, 2); ?>"]);
-    csv.push(["Orders Processed", "<?php echo $totalOrders; ?>"]);
-    csv.push([]);
-    csv.push(["Date", "Orders Count", "Cash Sales (RM)", "Digital/Card Sales (RM)", "Total Daily Sales (RM)"]);
-
-    <?php foreach ($dailyBreakdown as $row): ?>
-    csv.push([
-        "<?php echo $row['sale_date']; ?>",
-        "<?php echo $row['order_count']; ?>",
-        "<?php echo number_format($row['cash_total'], 2, '.', ''); ?>",
-        "<?php echo number_format($row['digital_total'], 2, '.', ''); ?>",
-        "<?php echo number_format($row['daily_total'], 2, '.', ''); ?>"
-    ]);
-    <?php endforeach; ?>
-
-    let csvContent = "data:text/csv;charset=utf-8," + csv.map(e => e.join(",")).join("\n");
-    let encodedUri = encodeURI(csvContent);
-    let link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "OrderPilot_Sales_Report_<?php echo $startDate; ?>_to_<?php echo $endDate; ?>.csv");
+    const dailyRows = <?php echo json_encode($dailyCsvRows, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+    const topItemRows = <?php echo json_encode($topItemsCsvRows, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+    const reportDateRange = <?php echo json_encode($startDate . ' to ' . $endDate, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+    const startDate = <?php echo json_encode($startDate, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+    const endDate = <?php echo json_encode($endDate, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+    const rows = [
+        ['OrderPilot Sales Report'],
+        ['Report Date Range', reportDateRange],
+        ['Total Revenue (RM)', '<?php echo number_format($totalRevenue, 2, '.', ''); ?>'],
+        ['Orders Processed', '<?php echo $totalOrders; ?>'],
+        ['Average Order Value (RM)', '<?php echo number_format($avgOrderValue, 2, '.', ''); ?>'],
+        ['Top Category', <?php echo json_encode($topCategory, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>],
+        [],
+        ['Daily Revenue Breakdown'],
+        ['Date', 'Orders Count', 'Cash Sales (RM)', 'Digital/Card Sales (RM)', 'Total Daily Sales (RM)'],
+        ...dailyRows,
+        [],
+        ['Top Selling Menu Items'],
+        ['Item Name', 'Category', 'Quantity Sold', 'Item Revenue (RM)'],
+        ...topItemRows
+    ];
+    const csvEscape = value => {
+        let text = String(value ?? '');
+        if (/^[=+@-]/.test(text)) text = "'" + text;
+        return '"' + text.replace(/"/g, '""') + '"';
+    };
+    const csvContent = String.fromCharCode(0xFEFF) + rows
+        .map(row => row.map(csvEscape).join(','))
+        .join('\r\n');
+    const file = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(file);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `OrderPilot_Sales_Report_${startDate}_to_${endDate}.csv`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 </script>
 </body>
